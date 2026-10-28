@@ -13,7 +13,7 @@
 | Item | Finding |
 |---|---|
 | Working directory | Initially `/home/user`, empty and not a git repository. Repository `reginald207/vanta-freight` was later cloned to `/home/user/vanta-freight`; it was empty (no commits). |
-| GitHub | `reginald207/vanta-freight` is attached with **read access only**. **Pushes are refused** until the Claude GitHub App is installed on the repo or GitHub is reconnected in claude.ai. The GitHub REST API is restricted to repo-scoped endpoints. |
+| GitHub | `reginald207/vanta-freight` is attached to the session. Pushing to it works (Phase 1 docs pushed to `main` on 2026-10-28). The GitHub REST API is restricted to repo-scoped endpoints. |
 | OS / hardware | Linux x86_64, 4 vCPU, 15 GiB RAM, about 31 GB free disk (per-session allowance) |
 | Node / package managers | Node **22.22.0**, npm **10.9.4**, pnpm 10.28.0, yarn 1.22.22, bun 1.4.4 |
 | Other tooling | git 2.43.0, gh 2.89.0, Python 3.13.17, Playwright with Chromium 153 (pre-installed). **No Blender**, no gltfpack binary. |
@@ -69,7 +69,7 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
 - [ ] Every new asset (fonts, posters) is listed in `ASSET_MANIFEST.md`.
 
 ### Pre-requisites (blockers for M1)
-- **B1:** Push access to `reginald207/vanta-freight` (install the Claude GitHub App on the repo or reconnect GitHub). The repo is attached and cloned, but pushes are currently refused.
+- ~~**B1:** A GitHub repository to commit and push to.~~ Resolved: `reginald207/vanta-freight` is attached and pushes work.
 - **B2:** Owner approval of decisions D1–D10.
 - B3 (non-blocking for M1): read the GSAP Standard License terms page, or allow gsap.com.
 

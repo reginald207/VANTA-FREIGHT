@@ -260,7 +260,7 @@ Conventions: **Cam** means camera move. **3D** means scene state. **DOM** means 
 
 | # | Risk / unknown | Impact | Mitigation |
 |---|---|---|---|
-| R1 | **No push access** to `reginald207/vanta-freight` from the cloud session. Commits exist only in the ephemeral container until pushed. | **High**: unpushed work is lost when the container is reclaimed. | The owner installs the Claude GitHub App on the repo or reconnects GitHub; then the local commits are pushed. |
+| R1 | Cloud container is ephemeral. | Low: unpushed work is lost when the container is reclaimed. | Push to `reginald207/vanta-freight` at the end of each working step (push access confirmed 2026-10-28). |
 | R2 | **Asset hosts are blocked** by the environment network policy (sketchfab.com, poly.pizza, kenney.nl, opengameart.org, quaternius.com, polyhaven.com, gsap.com, threejs.org, jsdelivr, unpkg). | High: model licences cannot be verified first-hand, and models cannot be downloaded into the container. | Either allow those domains in the environment network settings, or the owner downloads chosen files and commits them with licence screenshots or texts. The procedural truck path (M1) does not depend on this. |
 | R3 | No truly suitable *semi-truck* model with a verified permissive licence was confirmed. | Medium | Build the hero truck procedurally first (zero licence risk), and swap to a licensed GLB later behind the same interface. |
 | R4 | The full GSAP Standard No-Charge License text was not read first-hand. | Low–Medium | The owner (or a session with gsap.com allowed) reads https://gsap.com/standard-license before launch and records the result in the manifest. |
