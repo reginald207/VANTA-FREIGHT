@@ -1,0 +1,73 @@
+# VANTA FREIGHT
+
+A cinematic, multipage website for a **fictional** freight company: a design and engineering showcase built with Vite, vanilla JavaScript modules, Three.js and GSAP ScrollTrigger.
+
+> VANTA FREIGHT is not a real company. Nothing on this site moves freight or contacts a real logistics operator. Tracking is a simulation and forms are demos.
+
+- **Specification:** [`PROJECT_SPEC.md`](PROJECT_SPEC.md)
+- **Plan and milestones:** [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md)
+- **Licences for every asset and library:** [`ASSET_MANIFEST.md`](ASSET_MANIFEST.md)
+
+## Status
+
+Milestone **M1: Foundation and Hero Vertical Slice** is complete. It covers the home page's Scenes 0–2 (ignition, night-yard hero, departure) with a real-time procedural truck, the quality-tier fallbacks, and placeholder pages for the rest of the site.
+
+## Requirements
+
+Node.js **22.12+** (or 20.19+) and npm.
+
+## Scripts
+
+```bash
+npm install
+```
+
+```bash
+npm run dev          # local dev server
+```
+
+```bash
+npm run build        # production build into dist/
+```
+
+```bash
+npm run preview      # serve the production build
+```
+
+```bash
+npm run test:smoke   # build, then run the Playwright smoke suite
+```
+
+```bash
+npm run posters      # re-render the static hero posters from the live scene
+```
+
+`test:smoke` and `posters` use Playwright's Chromium. If it isn't installed on your machine, run `npx playwright install chromium` once.
+
+## How the home page degrades
+
+| Tier | When | What you get |
+|---|---|---|
+| 0 | JavaScript disabled | Full HTML content and the static poster |
+| 1 | Reduced motion, Save-Data, low memory or CPU, no WebGL2, 3D load over 3 s, WebGL context lost | Static poster and gentle reveals (none with reduced motion) |
+| 2 | Capable device | Live WebGL truck and the scroll-driven camera film |
+
+For QA on real devices, add `?tier=1` or `?tier=2` to the URL to force a tier. A forced Tier 2 allows 15 s for the 3D stage to load.
+
+The posters in `public/posters/` are rendered from the scene itself (`npm run posters`), so they stay in sync with the 3D hero. Re-run that command after changing the truck, lighting or hero camera.
+
+## Project layout
+
+```
+index.html, services/ fleet/ about/ tracking/ contact/ 404.html   one HTML file per route
+partials/            header, footer and head, included at build time
+plugins/             html-partials.js (tiny Vite plugin, no dependency)
+public/              favicon, posters
+src/core/            capability tiers, motion preference
+src/animation/       GSAP setup and section timelines
+src/webgl/           stage, procedural truck, floor and lights, camera rig
+src/pages/           page entry points
+src/styles/          tokens, base, page styles
+scripts/             poster renderer
+tests/               Playwright smoke tests (node:test)
+```

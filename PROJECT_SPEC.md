@@ -269,4 +269,4 @@ Conventions: **Cam** means camera move. **3D** means scene state. **DOM** means 
 | R7 | Cross-document View Transitions are not supported in every browser. | Low | Progressive enhancement only. |
 | R8 | Vercel free-tier terms may change. | Low | The output is plain static files, so any static host works. |
 | R9 | No Blender in the environment, so models cannot be edited here. | Low–Medium | Use gltf-transform for optimisation, and runtime material overrides for rebranding. Any mesh edits are done by the owner locally. |
-| R10 | Software WebGL in CI or the container. | Low | Use Playwright for functional and screenshot tests only. Measure performance on real hardware. |
+| R10 | Software WebGL in CI or the container. Chromium does not report SwiftShader as a major performance caveat, so `failIfMajorPerformanceCaveat` alone does not catch software rendering (found in M1). | Low–Medium | Use Playwright for functional and screenshot tests only. Measure performance on real hardware. The memory and CPU heuristics and the 3 s load deadline remain the guard; consider an adaptive downgrade to Tier 1 if frame time stays high at the minimum DPR (M2). |

@@ -1,0 +1,62 @@
+/* VANTA FREIGHT design tokens. The site is dark-only (see PROJECT_SPEC §2.2):
+   lime and steel are never used as text on ice. */
+:root {
+  /* Colour */
+  --vf-obsidian: #090b0a;
+  --vf-carbon: #151916;
+  --vf-carbon-2: #1d221f;
+  --vf-lime: #c7ff4a;
+  --vf-ice: #e9ede8;
+  --vf-steel: #89958d;
+  --vf-line: rgb(137 149 141 / 0.22);
+  --vf-scrim: rgb(9 11 10 / 0.72);
+
+  /* Type */
+  --vf-font-display: 'Archivo Variable', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  --vf-font-body: 'Archivo Variable', 'Helvetica Neue', Arial, sans-serif;
+  --vf-font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --vf-stretch-display: 68%;
+  --vf-stretch-ui: 92%;
+
+  --vf-step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.875rem);
+  --vf-step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --vf-step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
+  --vf-step-2: clamp(1.6rem, 1.3rem + 1.4vw, 2.5rem);
+  --vf-step-3: clamp(2.2rem, 1.6rem + 3vw, 4.25rem);
+  --vf-step-4: clamp(3rem, 1.8rem + 6vw, 7.75rem);
+
+  /* Space */
+  --vf-gutter: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+  --vf-space-xs: 0.5rem;
+  --vf-space-s: 1rem;
+  --vf-space-m: 1.75rem;
+  --vf-space-l: clamp(2.5rem, 2rem + 3vw, 5rem);
+  --vf-space-xl: clamp(4rem, 3rem + 6vw, 9rem);
+  --vf-max: 84rem;
+
+  /* Motion */
+  --vf-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --vf-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --vf-dur-fast: 160ms;
+  --vf-dur: 420ms;
+  --vf-dur-slow: 900ms;
+
+  /* Layers */
+  --vf-z-stage: 0;
+  --vf-z-content: 1;
+  --vf-z-header: 20;
+  --vf-z-progress: 30;
+  --vf-z-skip: 40;
+
+  /* Focus */
+  --vf-focus: 2px solid var(--vf-lime);
+  --vf-focus-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --vf-dur-fast: 0ms;
+    --vf-dur: 0ms;
+    --vf-dur-slow: 0ms;
+  }
+}

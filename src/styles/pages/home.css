@@ -1,0 +1,358 @@
+/* Home: the cinematic film.
+   Default styles are the static experience (no JS, Tier 1, reduced motion).
+   .vf-tier-2 on <html> unlocks the scroll film over the live WebGL stage. */
+
+.skip-link--film {
+  --skip-offset: 4.25rem;
+}
+
+/* Load progress hairline (Scene 0). Shown only while the 3D stage loads. */
+.load-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--vf-z-progress);
+  height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms linear;
+}
+
+.load-progress.is-active {
+  opacity: 1;
+}
+
+.load-progress__bar {
+  display: block;
+  height: 100%;
+  background: var(--vf-lime);
+  box-shadow: 0 0 12px rgb(199 255 74 / 0.6);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left;
+  transition: transform 300ms var(--vf-ease-out);
+}
+
+/* WebGL stage (created by JS, fixed behind content) */
+.vf-stage {
+  position: fixed;
+  inset: 0;
+  z-index: var(--vf-z-stage);
+  width: 100%;
+  height: 100lvh;
+  pointer-events: none;
+}
+
+main {
+  position: relative;
+  z-index: var(--vf-z-content);
+}
+
+main:focus {
+  outline: none;
+}
+
+/* Scene 1: hero */
+.hero {
+  position: relative;
+  display: grid;
+  align-items: end;
+  min-height: 100svh;
+  padding: 7rem var(--vf-gutter) clamp(5rem, 12vh, 8rem);
+  isolation: isolate;
+}
+
+.hero__poster {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  transition: opacity var(--vf-dur-slow) var(--vf-ease-in-out);
+}
+
+.hero__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 70% 50%;
+}
+
+.hero__poster::after {
+  /* Legibility scrim for the headline over the poster */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgb(9 11 10 / 0.75) 0%, rgb(9 11 10 / 0.2) 55%, rgb(9 11 10 / 0) 100%),
+    linear-gradient(to top, rgb(9 11 10 / 0.9) 0%, rgb(9 11 10 / 0) 45%);
+}
+
+.vf-stage-live .hero__poster {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--vf-dur-slow) var(--vf-ease-in-out),
+    visibility 0s var(--vf-dur-slow);
+}
+
+.hero__content {
+  display: grid;
+  gap: var(--vf-space-s);
+  max-width: var(--vf-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+.hero__title {
+  font-size: var(--vf-step-4);
+  text-transform: uppercase;
+}
+
+.hero__line {
+  display: block;
+}
+
+.hero__line:last-child {
+  color: var(--vf-lime);
+}
+
+.hero__lede {
+  font-size: var(--vf-step-1);
+  max-width: 38ch;
+  line-height: 1.45;
+  text-shadow: 0 1px 12px var(--vf-obsidian);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: var(--vf-space-xs);
+}
+
+.scroll-cue {
+  position: absolute;
+  right: var(--vf-gutter);
+  bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vf-steel);
+  text-decoration: none;
+}
+
+.scroll-cue:hover {
+  color: var(--vf-lime);
+}
+
+.scroll-cue__line {
+  width: 3rem;
+  height: 1px;
+  background: currentColor;
+}
+
+/* Scene 2: departure (static default: a plain list) */
+.departure {
+  position: relative;
+  padding: var(--vf-space-xl) var(--vf-gutter);
+}
+
+.departure__stage {
+  display: grid;
+  align-content: center;
+  gap: var(--vf-space-s);
+  max-width: var(--vf-max);
+  margin-inline: auto;
+}
+
+.departure__title {
+  font-size: var(--vf-step-3);
+  text-transform: uppercase;
+  max-width: 14ch;
+}
+
+.departure__list {
+  display: grid;
+  gap: var(--vf-space-s);
+  margin-top: var(--vf-space-m);
+  max-width: 34rem;
+}
+
+.statement__link {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 0.15rem 1rem;
+  padding: 1rem 1.25rem 1.1rem;
+  border-left: 2px solid var(--vf-line);
+  background: rgb(9 11 10 / 0.55);
+  text-decoration: none;
+  transition: border-color var(--vf-dur-fast) linear;
+}
+
+.statement__link:hover,
+.statement__link:focus-visible {
+  border-left-color: var(--vf-lime);
+}
+
+.statement__index {
+  grid-row: span 2;
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  color: var(--vf-lime);
+  padding-top: 0.4rem;
+}
+
+.statement__title {
+  font-family: var(--vf-font-display);
+  font-stretch: var(--vf-stretch-display);
+  font-weight: 800;
+  font-size: var(--vf-step-2);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.statement__copy {
+  color: var(--vf-steel);
+  font-size: var(--vf-step--1);
+}
+
+/* After the film */
+.after-film {
+  position: relative;
+  padding: var(--vf-space-xl) var(--vf-gutter);
+  background: linear-gradient(to bottom, rgb(9 11 10 / 0), var(--vf-obsidian) 30%);
+}
+
+.after-film:focus {
+  outline: none;
+}
+
+.after-film__inner {
+  display: grid;
+  gap: var(--vf-space-s);
+  max-width: var(--vf-max);
+  margin-inline: auto;
+}
+
+.after-film__title {
+  font-size: var(--vf-step-3);
+  text-transform: uppercase;
+  max-width: 16ch;
+}
+
+/* Tier 2: the scroll film. The departure section becomes a tall track with a
+   sticky stage (a CSS pin: no pin-spacer, robust on iOS). */
+.vf-tier-2 .hero__poster::after {
+  display: none;
+}
+
+.vf-tier-2 .hero {
+  background: none;
+}
+
+/* Legibility scrim for the headline over the live scene */
+.vf-tier-2 .hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(to right, rgb(9 11 10 / 0.92) 0%, rgb(9 11 10 / 0.8) 50%, rgb(9 11 10 / 0) 72%),
+    linear-gradient(to top, rgb(9 11 10 / 0.6) 0%, rgb(9 11 10 / 0) 35%);
+  pointer-events: none;
+}
+
+.vf-tier-2 .departure {
+  height: 250svh;
+  padding: 0;
+}
+
+.vf-tier-2 .departure__stage {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  max-width: none;
+  padding: 6rem var(--vf-gutter) 3rem;
+  isolation: isolate;
+}
+
+/* Legibility scrim behind the statements, over the live scene */
+.vf-tier-2 .departure__stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to right, rgb(9 11 10 / 0.88) 0%, rgb(9 11 10 / 0.6) 38%, rgb(9 11 10 / 0) 62%);
+  pointer-events: none;
+}
+
+.vf-tier-2 .statement:focus-within {
+  opacity: 1 !important;
+}
+
+/* Intro staging (home only). The CSS fallback reveal guarantees content shows
+   even if the module script never runs. */
+.vf-intro .page-home [data-intro],
+.vf-intro .page-home .wordmark__char {
+  opacity: 0;
+  animation: vf-reveal-fallback 0s 2.5s forwards;
+}
+
+@keyframes vf-reveal-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Capture mode (dev-only poster rendering): show only the stage */
+.vf-capture .site-header,
+.vf-capture main,
+.vf-capture .site-footer,
+.vf-capture .skip-link,
+.vf-capture .load-progress {
+  visibility: hidden;
+}
+
+@media (max-width: 40rem) {
+  .hero {
+    align-items: start;
+    padding-top: 6rem;
+  }
+
+  .hero__poster img {
+    object-position: 50% 100%;
+  }
+
+  .hero__poster::after {
+    background: linear-gradient(to bottom, rgb(9 11 10 / 0.85) 0%, rgb(9 11 10 / 0.35) 50%, rgb(9 11 10 / 0) 75%);
+  }
+
+  .scroll-cue {
+    left: var(--vf-gutter);
+    right: auto;
+  }
+
+  .vf-tier-2 .departure__stage {
+    align-content: end;
+    padding-bottom: 2rem;
+  }
+
+  .vf-tier-2 .hero::before {
+    background: linear-gradient(to bottom, rgb(9 11 10 / 0.9) 0%, rgb(9 11 10 / 0.7) 45%, rgb(9 11 10 / 0) 70%);
+  }
+
+  .vf-tier-2 .departure__stage::before {
+    background: linear-gradient(to top, rgb(9 11 10 / 0.92) 0%, rgb(9 11 10 / 0.75) 55%, rgb(9 11 10 / 0) 80%);
+  }
+
+  .departure__list {
+    gap: 0.6rem;
+  }
+
+  .statement__link {
+    padding: 0.75rem 1rem;
+  }
+}
