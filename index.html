@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <!-- @include head.html -->
+    <title>VANTA FREIGHT · We move what moves the world</title>
+    <meta
+      name="description"
+      content="VANTA FREIGHT is a fictional freight brand: a cinematic, interactive showcase of transport and cargo storytelling built with Three.js and GSAP."
+    />
+    <meta name="vf-page" content="home" />
+    <script type="module" src="/src/pages/home.js"></script>
+  </head>
+  <body class="page-home">
+    <!-- @include header.html -->
+    <a class="skip-link skip-link--film" href="#after-film">Skip the intro sequence</a>
+    <div class="load-progress" aria-hidden="true"><span class="load-progress__bar"></span></div>
+
+    <main id="main" tabindex="-1">
+      <div class="film">
+        <section class="hero" aria-labelledby="hero-title">
+          <picture class="hero__poster">
+            <source media="(max-aspect-ratio: 4/5)" srcset="/posters/hero-mobile.webp" type="image/webp" />
+            <source media="(max-aspect-ratio: 4/5)" srcset="/posters/hero-mobile.jpg" type="image/jpeg" />
+            <source srcset="/posters/hero-desktop.webp" type="image/webp" />
+            <img
+              src="/posters/hero-desktop.jpg"
+              alt=""
+              width="1920"
+              height="1080"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </picture>
+
+          <div class="hero__content">
+            <p class="eyebrow eyebrow--lime hero__eyebrow" data-intro>Chapter 01 · Night yard</p>
+            <h1 id="hero-title" class="hero__title">
+              <span class="hero__line">We move what</span>
+              <span class="hero__line">moves the world.</span>
+            </h1>
+            <p class="hero__lede" data-intro>
+              Long-haul, time-critical and temperature-controlled freight, told as an interactive film. VANTA FREIGHT
+              is a fictional carrier. The truck is real-time 3D.
+            </p>
+            <div class="hero__actions" data-intro>
+              <a class="btn btn--primary" href="/contact/">Request a quote <span class="btn__tag">Demo</span></a>
+              <a class="btn btn--ghost" href="/tracking/">Track a shipment <span class="btn__tag">Simulated</span></a>
+            </div>
+          </div>
+
+          <a class="scroll-cue" href="#departure" data-intro>
+            <span class="scroll-cue__line" aria-hidden="true"></span>
+            <span>Scroll to depart</span>
+          </a>
+        </section>
+
+        <section class="departure" id="departure" aria-labelledby="departure-title">
+          <div class="departure__stage">
+            <p class="eyebrow eyebrow--lime">Chapter 02 · Departure</p>
+            <h2 id="departure-title" class="departure__title">Three ways we run the road.</h2>
+            <ol class="departure__list" role="list">
+              <li class="statement">
+                <a class="statement__link" href="/services/">
+                  <span class="statement__index" aria-hidden="true">01</span>
+                  <span class="statement__title">Linehaul.</span>
+                  <span class="statement__copy">Full-truckload lanes between our fictional hubs, planned end to end.</span>
+                </a>
+              </li>
+              <li class="statement">
+                <a class="statement__link" href="/services/">
+                  <span class="statement__index" aria-hidden="true">02</span>
+                  <span class="statement__title">Expedited.</span>
+                  <span class="statement__copy">Team-driven, time-critical runs for freight that cannot wait.</span>
+                </a>
+              </li>
+              <li class="statement">
+                <a class="statement__link" href="/services/">
+                  <span class="statement__index" aria-hidden="true">03</span>
+                  <span class="statement__title">Temperature-controlled.</span>
+                  <span class="statement__copy">Reefer trailers that hold a set point from dock to dock.</span>
+                </a>
+              </li>
+            </ol>
+          </div>
+        </section>
+      </div>
+
+      <section class="after-film" id="after-film" tabindex="-1" aria-labelledby="after-film-title">
+        <div class="after-film__inner">
+          <p class="eyebrow">Chapter 03 · The network</p>
+          <h2 id="after-film-title" class="after-film__title">The route map is being drawn.</h2>
+          <p>
+            The network, cargo and fleet chapters of this film are in production for the next milestone. Until then,
+            you can explore the rest of the site.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="/contact/">Request a quote <span class="btn__tag">Demo</span></a>
+            <a class="btn btn--ghost" href="/services/">Explore services</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- @include footer.html -->
+  </body>
+</html>

@@ -1,0 +1,20 @@
+<meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#090B0A" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      // Runs before first paint: mark JS support and motion preference so CSS
+      // can stage intro states without a flash. Pure progressive enhancement.
+      (function (root) {
+        var c = root.classList;
+        c.remove('no-js');
+        c.add('js');
+        var reduce = false;
+        try {
+          reduce = matchMedia('(prefers-reduced-motion: reduce)').matches ||
+            localStorage.getItem('vf-motion') === 'reduce';
+        } catch (e) {}
+        c.add(reduce ? 'vf-reduced-motion' : 'vf-intro');
+      })(document.documentElement);
+    </script>

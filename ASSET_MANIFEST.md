@@ -5,7 +5,7 @@
 > **Status values:** `APPROVED`, meaning it may ship; `CANDIDATE`, meaning evaluation is pending; `REJECTED`, meaning it must not ship.
 > **Verification levels:** **[VERIFIED]** means the licence text or metadata was read from a primary source. **[SECONDARY]** means it is known only from search-result summaries, because the primary page was blocked from this environment. **[UNVERIFIED]** means it has not been checked.
 
-Last updated: 2026-10-28 (Phase 1).
+Last updated: 2026-10-29 (milestone M1).
 
 ---
 
@@ -36,7 +36,8 @@ Last updated: 2026-10-28 (Phase 1).
 | L4 | @fontsource-variable/archivo | 5.3.0 | npm | OFL-1.1 | **[VERIFIED]** package.json `license` and the bundled LICENSE file ("Copyright 2020 The Archivo Project Authors … SIL Open Font License, Version 1.1"), 2026-10-28 | APPROVED |
 | L5 | @fontsource-variable/jetbrains-mono | 5.3.0 | npm | OFL-1.1 | **[VERIFIED]** package.json plus LICENSE file, 2026-10-28 | APPROVED |
 | L6 | @fontsource-variable/inter (alternate only) | 5.3.0 | npm | OFL-1.1 | **[VERIFIED]** package.json plus LICENSE file, 2026-10-28 | CANDIDATE (not planned) |
-| L7 | @gltf-transform/cli (dev tool, not shipped) | 4.5.1 | npm | MIT | **[VERIFIED]** npm metadata; ran successfully here | APPROVED (tooling) |
+| L7 | @gltf-transform/cli (dev tool, not shipped) | 4.5.1 | npm | MIT | **[VERIFIED]** npm metadata; ran successfully here | APPROVED (tooling, not installed in the project) |
+| L9 | playwright (dev only, not shipped) | 1.63.0 | npm `playwright` | Apache-2.0 | **[VERIFIED]** package.json `license` and bundled LICENSE file, 2026-10-29. Pinned to the version pre-installed in the cloud environment. | APPROVED (tooling) |
 | L8 | Draco / Basis decoders | bundled with three 0.186.1 | `three/examples/jsm/libs/{draco,basis}` | Apache-2.0 (Draco, Basis Universal) [ASSUMPTION: confirm from each folder's README at time of use] | Files present in the package **[VERIFIED]**. Licence not yet read. | CANDIDATE: only if compression is used |
 
 ---
@@ -55,7 +56,7 @@ Last updated: 2026-10-28 (Phase 1).
 
 | ID | Model | Author | Source | Licence | Verification | Measured / reported specs | Fit for VANTA hero | Status |
 |---|---|---|---|---|---|---|---|---|
-| M0 | **Procedural "VF-01" tractor and trailer** (built in code from Three.js primitives: `RoundedBoxGeometry`, `ExtrudeGeometry`, `LatheGeometry`, `CylinderGeometry`) | VANTA FREIGHT project (original work) | This repository | Original work (project licence) | n/a. No third-party rights. | Target < 15k triangles, 0 KB download (code only), wheels and lights are separate meshes by construction | **High** for brand control and performance. Medium for realism. A stylised, monolithic "stealth freight" look suits the obsidian palette. | **RECOMMENDED for M1** |
+| M0 | **Procedural "VF-01" tractor and trailer** (`src/webgl/truck/procedural-truck.js`) (built in code from Three.js primitives: `RoundedBoxGeometry`, `ExtrudeGeometry`, `LatheGeometry`, `CylinderGeometry`) | VANTA FREIGHT project (original work) | This repository | Original work (project licence) | n/a. No third-party rights. | Target < 15k triangles, 0 KB download (code only), wheels and lights are separate meshes by construction | **High** for brand control and performance. Medium for realism. A stylised, monolithic "stealth freight" look suits the obsidian palette. | **APPROVED: shipped in M1** |
 | M1 | Cesium Milk Truck | Cesium (via Khronos glTF-Sample-Assets) | https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CesiumMilkTruck | **CC BY 4.0** (© 2017 Cesium). The Cesium **logo** is covered separately by `LicenseRef-LegalMark-Cesium`, which grants **no** right to use the mark outside that model's usage. | **[VERIFIED]** `metadata.json`, `README.md`, and `LICENSES/LicenseRef-LegalMark-Cesium.txt` read from raw.githubusercontent.com, 2026-10-28 | **[VERIFIED by gltf-transform inspect]** GLB 369,980 bytes. ~3.6k triangles (10,872 render verts). 2 meshes (body, wheels ×2 instances). 4 materials. 1 × 2048² JPEG (219 KB, ≈22 MB GPU). Has an animation (wheels). No extensions. | **Low** for the hero: toy-like proportions, and the logo baked into the texture means the texture must be replaced. **Useful as a pipeline test fixture** (loader, material override, wheel rotation) without the original texture. | CANDIDATE (test fixture only; must not ship with original texture) |
 | M2 | Kenney "Car Kit" (contains truck, delivery and van models) | Kenney (kenney.nl) | https://www.kenney.nl/assets/car-kit · https://kenney-assets.itch.io/car-kit | **CC0 1.0** | **[SECONDARY]** Search results quote the itch.io page: "CC0 1.0 Universal … any project including commercial ones". kenney.nl and itch.io pages were blocked here. | **[SECONDARY]** 45 assets, OBJ/FBX/glTF, about 3.4 MB zip, v2.0 "completely remade". Truck filenames and triangle counts are not confirmed. Likely very low-poly and stylised. | Medium-low: the stylised toy aesthetic needs a heavy material override. It is a good source of **background traffic and fleet silhouettes**. | CANDIDATE: needs first-hand check of zip contents and License.txt |
 | M3 | "Vehicles" low-poly pack (van, hot rod, pickup, **semi-truck**) | Per OpenGameArt listing (author not captured) | https://opengameart.org/content/vehicles-0 | **CC0** | **[SECONDARY]** search summary. opengameart.org was blocked here. | **[SECONDARY]** single GIMP-made texture, low poly. Format not confirmed. | Medium for a fleet silhouette, low for the hero. | CANDIDATE: needs first-hand check |
@@ -80,9 +81,9 @@ Last updated: 2026-10-28 (Phase 1).
 
 | ID | Asset | Source | Licence | Status |
 |---|---|---|---|---|
-| I1 | Hero poster images (desktop and mobile) | **Self-rendered** from our own Three.js scene via Playwright screenshot, then converted to AVIF/WebP | Original work | Planned (M1) |
+| I1 | Hero posters: `public/posters/hero-desktop.{webp,jpg}` (1920×1080), `hero-mobile.{webp,jpg}` (900×1600) | **Self-rendered** from the M1 scene by `npm run posters` (browser canvas encoder, WebP and JPEG; AVIF is not available from the canvas encoder) | Original work | **APPROVED** (M1) |
 | I2 | Open Graph / social images | Self-rendered | Original work | Planned |
-| I3 | Favicon / app icon | Self-made SVG ("V" monogram in lime on obsidian) | Original work | Planned |
+| I3 | Favicon: `public/favicon.svg` | Self-made SVG ("V" monogram in lime on obsidian) | Original work | **APPROVED** (M1) |
 | — | Stock photography / video | **None planned.** The cinematic look comes from real-time 3D, SVG, and typography. Any future stock asset needs a row here with its licence verified first-hand. | — | — |
 | — | Audio | **None planned.** If added, it must be opt-in, muted by default, and CC0. | — | — |
 

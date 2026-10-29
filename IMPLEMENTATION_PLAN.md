@@ -38,7 +38,7 @@
 
 ---
 
-## Phase 2 — Milestone M1: Foundation and Hero Vertical Slice (recommended next)
+## Phase 2 — Milestone M1: Foundation and Hero Vertical Slice ✅ (built 2026-10-29, awaiting owner review)
 
 **Goal:** prove the hardest, riskiest part (3D, scroll, fallback, performance) end to end on one page, with the production architecture, before building breadth.
 
@@ -58,15 +58,22 @@
 Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and deployment.
 
 ### M1 acceptance criteria
-- [ ] `npm run build` succeeds. `dist/` contains `index.html` plus hashed assets. The lazy 3D chunk is split from the entry chunk.
-- [ ] Entry JS (gzip) ≤ 60 KB. The 3D chunk size is reported in the PR description.
-- [ ] Headline is visible at first paint with JS disabled. The poster is visible at Tier 0 and Tier 1.
-- [ ] The Tier 2 truck renders and the camera scrubs smoothly forward **and backward** through Scenes 1–2 on owner hardware (owner reports fps on desktop and one phone).
-- [ ] `prefers-reduced-motion: reduce` gives no pin, no scrub, and no parallax, with the content intact.
-- [ ] Forcing WebGL context loss swaps to the poster without errors.
-- [ ] Keyboard: skip link, nav, and CTAs are reachable with a visible focus ring.
-- [ ] Playwright smoke suite passes in this environment.
-- [ ] Every new asset (fonts, posters) is listed in `ASSET_MANIFEST.md`.
+- [x] `npm run build` succeeds. `dist/` contains `index.html` plus hashed assets. The lazy 3D chunk is split from the entry chunk.
+- [x] Entry JS (gzip) ≤ 60 KB. Measured: home entry **46.9 KB**; lazy 3D chunks **≈ 152 KB** (three.js and scene 148 KB, truck 4.4 KB). Both are enforced by the smoke suite.
+- [x] Headline is visible at first paint with JS disabled. The poster is visible at Tier 0 and Tier 1.
+- [ ] The Tier 2 truck renders and the camera scrubs smoothly forward **and backward** through Scenes 1–2 **on owner hardware** (owner reports fps on desktop and one phone). Verified functionally here, but frame rate can't be measured in the container (software WebGL).
+- [x] `prefers-reduced-motion: reduce` gives no pin, no scrub, and no parallax, with the content intact.
+- [x] Forcing WebGL context loss swaps to the poster without errors.
+- [x] Keyboard: skip link, nav, and CTAs are reachable with a visible focus ring.
+- [x] Playwright smoke suite passes in this environment (27 tests).
+- [x] Every new asset (fonts, posters, favicon) is listed in `ASSET_MANIFEST.md`.
+
+### M1 implementation notes
+- **CSS sticky instead of a ScrollTrigger pin** for the departure scene. The section becomes a 250 svh track with a `position: sticky` stage, which avoids pin-spacers and iOS resize jumps. ScrollTrigger only scrubs.
+- **The tier detector does not reject this container's software WebGL.** Chromium here doesn't treat SwiftShader as a `failIfMajorPerformanceCaveat`, so the default load goes live in the container. Real low-end devices are still caught by the memory and CPU heuristics and the 3 s load deadline. Tests force tiers or disable WebGL to cover each path.
+- A forced `?tier=2` gets a 15 s load deadline instead of 3 s, since it is an explicit request for 3D.
+- Legibility scrims sit between the live scene and the hero and departure text (left-to-right on desktop, vertical on phones).
+- Posters are encoded with the browser's canvas encoder (WebP and JPEG) to avoid an image-processing dependency. AVIF can be added later if a toolchain is approved.
 
 ### Pre-requisites (blockers for M1)
 - ~~**B1:** A GitHub repository to commit and push to.~~ Resolved: `reginald207/vanta-freight` is attached and pushes work.
