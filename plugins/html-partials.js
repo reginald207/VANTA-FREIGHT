@@ -2,6 +2,7 @@
 //
 //   <!-- @include header.html -->   is replaced with partials/header.html
 //   <!-- @render network-map -->     is replaced with renderers['network-map']()
+//   <!-- @render service linehaul --> passes an argument: renderers.service('linehaul')
 //   <meta name="vf-page" content="services">   marks the current section, so
 //   any link carrying data-nav="services" receives aria-current="page".
 //
@@ -10,7 +11,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const INCLUDE = /<!--\s*@include\s+([\w./-]+)\s*-->/g;
-const RENDER = /<!--\s*@render\s+([\w-]+)\s*-->/g;
+const RENDER = /<!--\s*@render\s+([\w-]+)(?:\s+([\w-]+))?\s*-->/g;
 const PAGE_META = /<meta\s+name="vf-page"\s+content="([\w-]+)"\s*\/?>/;
 
 export default function htmlPartials({ dir = 'partials', renderers = {} } = {}) {
@@ -38,9 +39,9 @@ export default function htmlPartials({ dir = 'partials', renderers = {} } = {}) 
     transformIndexHtml: {
       order: 'pre',
       handler(html) {
-        let out = expand(html).replace(RENDER, (_, name) => {
+        let out = expand(html).replace(RENDER, (_, name, arg) => {
           if (!renderers[name]) throw new Error(`html-partials: no renderer named "${name}"`);
-          return renderers[name]();
+          return renderers[name](arg);
         });
         const page = out.match(PAGE_META)?.[1];
         if (page) {

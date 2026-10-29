@@ -3,20 +3,93 @@
   <head>
     <!-- @include head.html -->
     <title>About · VANTA FREIGHT</title>
-    <meta name="description" content="The story of a fictional freight brand, the design principles behind it, and credits for every asset and library used." />
+    <meta
+      name="description"
+      content="VANTA FREIGHT is a fictional carrier: a design and engineering showcase. What is real, what is made up, how it is built, and credits."
+    />
     <meta name="vf-page" content="about" />
-    <script type="module" src="/src/pages/base.js"></script>
+    <script type="module" src="/src/pages/content.js"></script>
   </head>
   <body>
     <!-- @include skip-link.html -->
     <!-- @include header.html -->
-    <main id="main" tabindex="-1" class="page">
-      <p class="eyebrow eyebrow--lime">VANTA FREIGHT</p>
-      <h1>About</h1>
-      <p class="page__lede">The story of a fictional freight brand, the design principles behind it, and credits for every asset and library used.</p>
-      <p class="page__status">The about page and full credits arrive in milestone M3.</p>
-      <p>Current credits: three.js (MIT), GSAP (GreenSock Standard License), Archivo and JetBrains Mono (SIL Open Font License 1.1). The hero truck is an original procedural model.</p>
-      <p><a class="btn btn--ghost" href="/">Back to the film</a></p>
+    <main id="main" tabindex="-1" class="content">
+      <header class="content-hero">
+        <p class="eyebrow eyebrow--lime">About</p>
+        <h1>A fictional carrier, built for real.</h1>
+        <p class="content-hero__lede">
+          VANTA FREIGHT does not exist. This site is a design and engineering showcase: an interactive film about
+          freight, built with open web technology.
+        </p>
+      </header>
+
+      <section class="content-section content-section--split" aria-labelledby="real-title">
+        <div class="content-section__copy" data-reveal>
+          <h2 id="real-title">What is real</h2>
+          <ul class="checklist" role="list">
+            <li>The code, and the real-time 3D it renders</li>
+            <li>The accessibility and performance work</li>
+            <li>The fallbacks for devices without WebGL, or with reduced motion</li>
+            <li>The licences for every library and typeface</li>
+          </ul>
+        </div>
+        <div class="content-section__copy" data-reveal>
+          <h2 id="made-up-title">What is made up</h2>
+          <ul class="checklist checklist--plain" role="list">
+            <li>The company, its hubs and its lanes</li>
+            <li>The fleet. Its specifications are measured from the 3D models</li>
+            <li>The services. They are not offers</li>
+            <li>Shipments and tracking, which are simulated in your browser</li>
+            <li>Quotes. The form sends nothing</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="content-section" aria-labelledby="principles-title">
+        <h2 id="principles-title">Design principles</h2>
+        <ul class="principles" role="list">
+          <li class="principles__item" data-reveal>
+            <h3>Night-shift clarity</h3>
+            <p>Obsidian surfaces, high-contrast type, and lime only where it means something.</p>
+          </li>
+          <li class="principles__item" data-reveal>
+            <h3>Honest data</h3>
+            <p>No invented statistics, customers or certifications. Simulations are labelled as simulations.</p>
+          </li>
+          <li class="principles__item" data-reveal>
+            <h3>Motion with a purpose</h3>
+            <p>The camera moves to explain something. Every scene also exists as plain, readable HTML.</p>
+          </li>
+          <li class="principles__item" data-reveal>
+            <h3>Built to degrade</h3>
+            <p>No JavaScript, no WebGL or reduced motion: you still get the whole story.</p>
+          </li>
+        </ul>
+      </section>
+
+      <section class="content-section content-section--split" aria-labelledby="built-title">
+        <div class="content-section__copy">
+          <h2 id="built-title">How it is built</h2>
+          <p>
+            Static pages built with Vite, written in plain HTML, CSS and JavaScript modules. The trucks are modelled in
+            code with three.js and lit in real time. The home film is driven by GSAP ScrollTrigger over native
+            scrolling. Playwright tests check every page, every fallback and the bundle budgets.
+          </p>
+        </div>
+        <div class="content-section__copy">
+          <h2 id="access-title">Accessibility</h2>
+          <p>
+            The site aims for WCAG 2.2 AA: semantic landmarks, visible focus, skip links, sufficient contrast and
+            keyboard access throughout. Use the Reduce motion switch in the header to turn off the film on any page.
+          </p>
+        </div>
+      </section>
+
+      <section class="content-section" id="credits" aria-labelledby="credits-title">
+        <h2 id="credits-title">Credits and licences</h2>
+        <p>Everything here is free to use under the licences below, or is original work for this project.</p>
+        <!-- @render credits -->
+      </section>
     </main>
     <!-- @include footer.html -->
   </body>

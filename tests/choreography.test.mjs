@@ -216,3 +216,33 @@ describe('adaptive resolution', async () => {
     assert.ok(seconds <= 8, `took ${seconds} s`);
   });
 });
+
+describe('services data', async () => {
+  const { SERVICES } = await import('../src/data/services.js');
+  const { findLane, renderRouteSvg } = await import('../src/data/network-svg.js');
+  const { existsSync } = await import('node:fs');
+
+  test('slugs are unique and each has a page stub', () => {
+    const slugs = SERVICES.map((service) => service.slug);
+    assert.equal(new Set(slugs).size, slugs.length);
+    slugs.forEach((slug) => {
+      assert.ok(existsSync(new URL(`../services/${slug}/index.html`, import.meta.url)), `services/${slug}/index.html`);
+    });
+  });
+
+  test('every example route follows real lanes on the fictional network', () => {
+    SERVICES.forEach(({ slug, route }) => {
+      assert.ok(route.length >= 2, slug);
+      route.slice(1).forEach((to, index) => assert.doesNotThrow(() => findLane(route[index], to), `${slug}: ${route[index]} -> ${to}`));
+      const svg = renderRouteSvg(route, { id: slug });
+      assert.equal(svg.match(/class="route-map__leg"/g).length, route.length - 1);
+    });
+  });
+
+  test('every service has content in each section', () => {
+    SERVICES.forEach((service) => {
+      for (const key of ['tagline', 'summary']) assert.ok(service[key].length > 10, `${service.slug}.${key}`);
+      for (const key of ['facts', 'included', 'steps', 'fit']) assert.ok(service[key].length >= 3, `${service.slug}.${key}`);
+    });
+  });
+});

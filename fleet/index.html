@@ -3,20 +3,59 @@
   <head>
     <!-- @include head.html -->
     <title>Fleet · VANTA FREIGHT</title>
-    <meta name="description" content="Vehicle classes, fictional specifications and an interactive 3D turntable." />
+    <meta
+      name="description"
+      content="Three fictional vehicle classes, with specifications measured from their 3D models, and an interactive 3D viewer."
+    />
     <meta name="vf-page" content="fleet" />
-    <script type="module" src="/src/pages/base.js"></script>
+    <script type="module" src="/src/pages/fleet.js"></script>
   </head>
   <body>
     <!-- @include skip-link.html -->
     <!-- @include header.html -->
-    <main id="main" tabindex="-1" class="page">
-      <p class="eyebrow eyebrow--lime">VANTA FREIGHT</p>
-      <h1>Fleet</h1>
-      <p class="page__lede">Vehicle classes, fictional specifications and an interactive 3D turntable.</p>
-      <p class="page__status">The fleet page arrives in milestone M3.</p>
-      <p>All vehicles and specifications will be fictional.</p>
-      <p><a class="btn btn--ghost" href="/">Back to the film</a></p>
+    <main id="main" tabindex="-1" class="content">
+      <header class="content-hero">
+        <p class="eyebrow eyebrow--lime">Fleet</p>
+        <h1>Three classes. One standard.</h1>
+        <p class="content-hero__lede">
+          Every class shares the same cab, lighting and livery. The vehicles are fictional, and their specifications
+          are measured from the 3D models you can turn below.
+        </p>
+      </header>
+
+      <section class="turntable" aria-labelledby="viewer-title">
+        <h2 id="viewer-title" class="visually-hidden">Vehicle viewer</h2>
+        <div class="turntable__tabs" role="group" aria-label="Choose a vehicle class">
+          <button class="turntable__tab" type="button" data-variant="semi" aria-pressed="true">
+            <span class="turntable__code">VF-01</span> Tractor-trailer
+          </button>
+          <button class="turntable__tab" type="button" data-variant="rigid" aria-pressed="false">
+            <span class="turntable__code">VF-02</span> Rigid box truck
+          </button>
+          <button class="turntable__tab" type="button" data-variant="tractor" aria-pressed="false">
+            <span class="turntable__code">VF-03</span> Tractor unit
+          </button>
+        </div>
+        <div class="turntable__viewport">
+          <picture class="turntable__poster">
+            <source srcset="/posters/fleet-semi.webp" type="image/webp" />
+            <img
+              src="/posters/fleet-semi.jpg"
+              alt="VF-01 tractor-trailer, seen from the front three-quarter view"
+              width="1600"
+              height="900"
+              decoding="async"
+            />
+          </picture>
+        </div>
+        <p class="turntable__hint is-inactive">Drag the vehicle, or focus it and use the arrow keys, to turn it.</p>
+      </section>
+
+      <section class="content-section" aria-labelledby="classes-title">
+        <h2 id="classes-title">Vehicle classes</h2>
+        <p class="content-note">Illustrative specifications, measured from the 3D models. Not real vehicles.</p>
+        <!-- @render fleet-classes -->
+      </section>
     </main>
     <!-- @include footer.html -->
   </body>

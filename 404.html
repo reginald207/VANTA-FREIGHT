@@ -5,18 +5,25 @@
     <title>Not found · VANTA FREIGHT</title>
     <meta name="description" content="This page is not on any of our (fictional) lanes." />
     <meta name="vf-page" content="404" />
-    <script type="module" src="/src/pages/base.js"></script>
+    <meta name="robots" content="noindex" />
+    <script type="module" src="/src/pages/content.js"></script>
   </head>
   <body>
     <!-- @include skip-link.html -->
     <!-- @include header.html -->
-    <main id="main" tabindex="-1" class="page">
-      <p class="eyebrow eyebrow--lime">VANTA FREIGHT</p>
-      <h1>Off the route map.</h1>
-      <p class="page__lede">This page is not on any of our (fictional) lanes.</p>
-      <p class="page__status">Error 404</p>
-      <p>Check the address, or head back to the start.</p>
-      <p><a class="btn btn--ghost" href="/">Back to the film</a></p>
+    <main id="main" tabindex="-1" class="content content--center">
+      <header class="content-hero">
+        <p class="eyebrow eyebrow--lime">Error 404</p>
+        <h1>Off the route map.</h1>
+        <p class="content-hero__lede">This page is not on any of our (fictional) lanes. Try one of these instead.</p>
+      </header>
+      <ul class="link-list" role="list">
+        <li><a href="/">The film, from the night yard</a></li>
+        <li><a href="/services/">Services</a></li>
+        <li><a href="/fleet/">Fleet</a></li>
+        <li><a href="/tracking/">Track a shipment (simulated)</a></li>
+        <li><a href="/contact/">Request a quote (demo)</a></li>
+      </ul>
     </main>
     <!-- @include footer.html -->
   </body>

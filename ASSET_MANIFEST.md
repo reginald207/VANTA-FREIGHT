@@ -5,7 +5,7 @@
 > **Status values:** `APPROVED`, meaning it may ship; `CANDIDATE`, meaning evaluation is pending; `REJECTED`, meaning it must not ship.
 > **Verification levels:** **[VERIFIED]** means the licence text or metadata was read from a primary source. **[SECONDARY]** means it is known only from search-result summaries, because the primary page was blocked from this environment. **[UNVERIFIED]** means it has not been checked.
 
-Last updated: 2026-10-29 (milestone M2).
+Last updated: 2026-10-29 (milestone M3).
 
 ---
 
@@ -85,10 +85,12 @@ Last updated: 2026-10-29 (milestone M2).
 | I1 | Hero posters: `public/posters/hero-desktop.{webp,jpg}` (1920×1080), `hero-mobile.{webp,jpg}` (900×1600) | **Self-rendered** from the M1 scene by `npm run posters` (browser canvas encoder, WebP and JPEG; AVIF is not available from the canvas encoder) | Original work | **APPROVED** (M1) |
 | I2 | Open Graph / social images | Self-rendered | Original work | Planned |
 | I4 | Network map, crates, fleet variants, x-ray outline (M2) | Generated in code from `src/data/network.js` and the procedural truck; no external files | Original work | **APPROVED** (M2) |
+| I5 | Fleet posters: `public/posters/fleet-{semi,rigid,tractor}.{webp,jpg}` (1864×1046) | Self-rendered from the fleet turntable by `npm run posters` | Original work | **APPROVED** (M3) |
+| I6 | Service route maps | Generated at build time from `src/data/network.js` | Original work | **APPROVED** (M3) |
 | I3 | Favicon: `public/favicon.svg` | Self-made SVG ("V" monogram in lime on obsidian) | Original work | **APPROVED** (M1) |
 | — | Stock photography / video | **None planned.** The cinematic look comes from real-time 3D, SVG, and typography. Any future stock asset needs a row here with its licence verified first-hand. | — | — |
 | — | Audio | **None planned.** If added, it must be opt-in, muted by default, and CC0. | — | — |
 
-## 5. Attribution block (to render on `/about/#credits`)
+## 5. Attribution block
 
-_Populate from the rows above that are `APPROVED` and need credit. Currently: libraries (three.js, MIT; GSAP, GreenSock Standard License) and fonts (Archivo, JetBrains Mono, OFL-1.1). No CC BY model is approved yet._
+Rendered on `/about/#credits` from `src/data/credits.js`. The smoke suite fails if a third-party credit is missing from this manifest. Current credits: three.js (MIT), GSAP and ScrollTrigger (GreenSock Standard License), Archivo and JetBrains Mono (OFL-1.1), Vite (MIT, build only) and Playwright (Apache-2.0, tests only). The trucks, posters, network map and favicon are original work.

@@ -1,4 +1,5 @@
-// Renders the static hero posters (Tier 0/1 fallback) from the live scene.
+// Renders the static posters (Tier 0/1 fallbacks) from the live scenes: the
+// home hero, and one image per vehicle class for the fleet turntable.
 // Starts a Vite dev server, opens the home page in capture mode with
 // Playwright, and encodes WebP + JPEG with the browser's own canvas encoder.
 //
@@ -12,8 +13,15 @@ const root = resolve(import.meta.dirname, '..');
 const outDir = resolve(root, 'public/posters');
 
 const variants = [
-  { name: 'hero-desktop', viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 },
-  { name: 'hero-mobile', viewport: { width: 450, height: 800 }, deviceScaleFactor: 2 },
+  { name: 'hero-desktop', path: '?capture=1', viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 },
+  { name: 'hero-mobile', path: '?capture=1', viewport: { width: 450, height: 800 }, deviceScaleFactor: 2 },
+  ...['semi', 'rigid', 'tractor'].map((variant) => ({
+    name: `fleet-${variant}`,
+    path: `fleet/?capture=${variant}`,
+    // The fleet viewport is 16:9 inside the content column.
+    viewport: { width: 1000, height: 900 },
+    deviceScaleFactor: 2,
+  })),
 ];
 
 function decode(dataUrl) {
@@ -26,10 +34,10 @@ const base = server.resolvedUrls.local[0];
 const browser = await chromium.launch();
 
 try {
-  for (const { name, viewport, deviceScaleFactor } of variants) {
+  for (const { name, path, viewport, deviceScaleFactor } of variants) {
     const page = await browser.newPage({ viewport, deviceScaleFactor });
     page.on('pageerror', (error) => console.error(`[${name}]`, error.message));
-    await page.goto(`${base}?capture=1`, { waitUntil: 'networkidle' });
+    await page.goto(`${base}${path}`, { waitUntil: 'networkidle' });
     await page.waitForFunction(() => typeof window.__vfCapture === 'function', null, { timeout: 60_000 });
 
     const webp = await page.evaluate(() => window.__vfCapture('image/webp', 0.86));
@@ -38,7 +46,11 @@ try {
 
     await writeFile(resolve(outDir, `${name}.webp`), decode(webp));
     await writeFile(resolve(outDir, `${name}.jpg`), decode(jpeg));
-    console.log(`✓ ${name}: ${viewport.width * deviceScaleFactor}×${viewport.height * deviceScaleFactor}`);
+    const size = await page.evaluate(() => {
+      const canvas = document.querySelector('canvas');
+      return `${canvas.width}×${canvas.height}`;
+    });
+    console.log(`✓ ${name}: ${size}`);
     await page.close();
   }
 } finally {
