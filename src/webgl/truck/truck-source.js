@@ -1,5 +1,5 @@
 // The hero truck behind one interface, so a licensed glTF model can replace the
-// procedural one later (milestone M5) without touching the choreography.
+// procedural one (milestone M5) without touching the choreography.
 
 /**
  * @typedef {object} Truck
@@ -14,7 +14,8 @@
  */
 
 /**
- * @param {{type: 'procedural', variant?: 'semi' | 'rigid' | 'tractor'}} [source]
+ * @param {{type: 'procedural', variant?: 'semi' | 'rigid' | 'tractor'}
+ *   | {type: 'gltf', url: string, mapping: object}} [source]
  * @returns {Promise<Truck>}
  */
 export async function createTruck(source = { type: 'procedural' }) {
@@ -22,6 +23,10 @@ export async function createTruck(source = { type: 'procedural' }) {
     case 'procedural': {
       const { createProceduralTruck } = await import('./procedural-truck.js');
       return createProceduralTruck({ variant: source.variant });
+    }
+    case 'gltf': {
+      const { loadGltfTruck } = await import('./gltf-truck.js');
+      return loadGltfTruck(source);
     }
     default:
       throw new Error(`Unknown truck source: ${source.type}`);

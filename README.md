@@ -10,7 +10,7 @@ A cinematic, multipage website for a **fictional** freight company: a design and
 
 ## Status
 
-Milestones **M1–M4** and **M6** (hardening) are built: the full home film, Services and the four service pages, Fleet (with a 3D viewer), About (with credits), a **simulated** shipment tracker and a **demo** quote and contact form. Neither the tracker nor the form makes a network request, and the site ships with a strict Content Security Policy. M5 (an optional licensed 3D model) was skipped. Acceptance status: `PROJECT_SPEC.md` §9.1.
+Milestones **M1–M4** and **M6** (hardening) are built: the full home film, Services and the four service pages, Fleet (with a 3D viewer), About (with credits), a **simulated** shipment tracker and a **demo** quote and contact form. Neither the tracker nor the form makes a network request, and the site ships with a strict Content Security Policy. M5's glTF model pipeline is built and tested, but **no licensed model is in use yet**: none could be verified first-hand from the build environment, so the hero stays procedural (see `src/webgl/truck/hero-truck.js` to switch). Acceptance status: `PROJECT_SPEC.md` §9.1.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ npm run preview      # serve the production build
 ```
 
 ```bash
-npm test             # unit tests (choreography, network, tracking simulator, form validation)
+npm test             # unit tests (choreography, network, tracker, forms, SEO, glTF pipeline)
 ```
 
 ```bash
@@ -59,6 +59,14 @@ npm run posters      # re-render the posters and the social card from the live s
 For QA on real devices, add `?tier=1` or `?tier=2` to the URL to force a tier. A forced Tier 2 allows 15 s for the 3D stage to load.
 
 The posters in `public/posters/` are rendered from the scene itself (`npm run posters`), so they stay in sync with the 3D hero. Re-run that command after changing the truck, lighting or hero camera.
+
+## Using a licensed 3D model
+
+```bash
+node scripts/optimize-model.mjs input.glb public/models/truck.glb
+```
+
+The script strips textures and animations, optimises the geometry, and fails over budget (1.5 MB, 50k triangles). Then follow the steps in `src/webgl/truck/hero-truck.js`. Only use a model whose licence is approved in `ASSET_MANIFEST.md`. On the dev server, `?truck=fixture` previews the test fixture in the live film.
 
 ## Audits
 
@@ -100,6 +108,6 @@ src/animation/       GSAP setup and section timelines
 src/webgl/           stage, procedural truck, floor and lights, camera rig
 src/pages/           page entry points
 src/styles/          tokens, base, page styles
-scripts/             poster and social-card renderer, Lighthouse budgets
-tests/               Playwright smoke tests (node:test)
+scripts/             poster and social-card renderer, Lighthouse budgets, model optimiser
+tests/               unit and Playwright smoke tests (node:test); fixtures/ (test-only model)
 ```

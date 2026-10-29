@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "posters": "node scripts/render-posters.mjs",
     "pretest:smoke": "vite build",
-    "test": "node --test tests/choreography.test.mjs tests/tracking.test.mjs tests/seo.test.mjs",
+    "test": "node --test tests/choreography.test.mjs tests/tracking.test.mjs tests/seo.test.mjs tests/model.test.mjs",
     "test:smoke": "node --test --test-concurrency=1 tests/*.test.mjs",
     "preaudit:lighthouse": "vite build",
     "audit:lighthouse": "node scripts/lighthouse.mjs"
@@ -26,6 +26,9 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
     "lighthouse": "13.6.0",
     "playwright": "1.63.0",
     "vite": "8.3.5"

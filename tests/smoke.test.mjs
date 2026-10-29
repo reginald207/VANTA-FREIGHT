@@ -410,6 +410,17 @@ describe('content and honesty', () => {
     }
   });
 
+  test('the test-only model fixture never reaches the production build', () => {
+    const walk = (dir) =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+        entry.isDirectory() ? walk(resolve(dir, entry.name)) : [resolve(dir, entry.name)],
+      );
+    for (const file of walk(dist)) {
+      assert.doesNotMatch(file, /cesium|fixtures/i, file);
+      if (/\.(js|html)$/.test(file)) assert.doesNotMatch(readFileSync(file, 'utf8'), /cesium-milk-truck|truck=fixture/i, file);
+    }
+  });
+
   test('every service has a built page with its own title', () => {
     for (const service of SERVICES) {
       const html = readFileSync(resolve(dist, 'services', service.slug, 'index.html'), 'utf8');

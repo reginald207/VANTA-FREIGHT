@@ -155,6 +155,16 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
 - Found and fixed: components that set `display` were overriding the `hidden` attribute, so the success panel showed under the form. A global `[hidden] { display: none !important }` fixes it everywhere, including the header's motion toggle, which used to show without JS.
 
 ## Phase 6 — M5: Asset upgrade (optional, gated on licence verification)
+
+### M5 status (built 2026-10-29): pipeline complete, model blocked on licence verification
+- **Blocked: no model can be verified first-hand from the cloud environment.** Sketchfab, Kenney, Poly Pizza, OpenGameArt, Quaternius and Poly Haven are still blocked by its network policy, and searches found no truck in a public GitHub repository (which would be verifiable) with a clear CC0 or CC BY licence. Search-result summaries don't meet the licence bar in `ASSET_MANIFEST.md` §1. **Production keeps the procedural trucks**, and a test enforces that.
+- **Built and tested, ready for a model:**
+  - `src/webgl/truck/gltf-truck.js` loads a glTF model behind the same `Truck` interface as the procedural trucks. A small mapping orients it (nose to +X), scales it to real length, stands it on the floor, puts the nose where the camera expects it, spins named wheel nodes about their axis, re-skins materials in the brand palette, adds the lime side line, and can fade cargo nodes for the x-ray.
+  - `scripts/optimize-model.mjs` strips textures (and so any third-party logos) and animations, then dedups, welds and prunes. It **fails over budget** (1.5 MB, 50k triangles). It uses no Draco or Meshopt, because their WebAssembly decoders would need a CSP exception.
+  - `src/webgl/truck/hero-truck.js` is the single switch, with step-by-step instructions. On the dev server, `?truck=fixture` A/Bs the fixture in the live film.
+  - The fixture (Cesium Milk Truck, CC BY 4.0) is committed without its logo texture and credited in `tests/fixtures/README.md`. A test checks it never reaches `dist/`.
+- **Found and fixed:** three.js sanitises node names on load (`Wheels.001` becomes `Wheels001`), so mappings written from the file's own names silently missed wheels. The matcher now sanitises the same way.
+- **To finish M5:** pick a model, then either allow its host in the environment's network settings or download it yourself and commit it with its licence text. Then run the optimiser, write its mapping, and switch `HERO_TRUCK`. The camera keyframes are tuned for a 17 m semi, so a model of different proportions needs its framing re-checked.
 - If a GLB truck is approved in `ASSET_MANIFEST.md`: optimise with gltf-transform (`dedup`, `prune`, `weld`, `draco` or `meshopt`, `resize --width 2048`, `webp`), map wheel and light nodes, apply the brand material override, and A/B it against the procedural truck.
 - **Acceptance:** model ≤ 1.5 MB; no fps regression; credits rendered.
 

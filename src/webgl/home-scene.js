@@ -9,6 +9,7 @@ import { createFloor, createHeadlightBeams, createLights } from './environment.j
 import { createFleet } from './fleet.js';
 import { createNetwork } from './network.js';
 import { createStage } from './stage.js';
+import { heroTruckSource } from './truck/hero-truck.js';
 import { createTruck } from './truck/truck-source.js';
 
 // Distance the truck travels as it pulls away in Scene 7 (metres).
@@ -41,7 +42,7 @@ export async function createHomeScene({
     }
   };
 
-  const [truck, fleet] = await Promise.all([createTruck({ type: 'procedural' }), createFleet()]);
+  const [truck, fleet] = await Promise.all([heroTruckSource().then(createTruck), createFleet()]);
   checkpoint();
   onProgress(0.75);
 

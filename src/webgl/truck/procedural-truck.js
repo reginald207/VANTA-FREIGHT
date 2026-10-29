@@ -106,7 +106,8 @@ function extrudeProfile(points, depth, bevel) {
   return nonIndexed(geometry);
 }
 
-function createMaterials() {
+// The brand materials, shared with glTF trucks (see gltf-truck.js).
+export function createBrandMaterials() {
   return {
     body: new MeshPhysicalMaterial({
       color: '#232a26',
@@ -424,7 +425,7 @@ function createLivery(texture, { x, width }) {
 export async function createProceduralTruck({ variant = 'semi' } = {}) {
   const spec = VARIANTS[variant];
   if (!spec) throw new Error(`Unknown truck variant: ${variant}`);
-  const materials = createMaterials();
+  const materials = createBrandMaterials();
   const parts = Object.fromEntries(Object.keys(materials).map((key) => [key, []]));
 
   buildTractor(parts, spec.tractor);
