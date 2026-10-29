@@ -3,7 +3,7 @@
 // sections come from the same data modules the tests check.
 import { CREDITS } from './credits.js';
 import { FLEET } from './fleet.js';
-import { hubById } from './network.js';
+import { HUBS, hubById } from './network.js';
 import { renderRouteSvg } from './network-svg.js';
 import { SERVICES, serviceBySlug } from './services.js';
 
@@ -54,7 +54,7 @@ export function renderServicePage(slug) {
     <p class="content-hero__lede">${esc(service.tagline)}</p>
     <p class="content-hero__summary">${esc(service.summary)}</p>
     <div class="hero__actions">
-      <a class="btn btn--primary" href="/contact/">Request a quote <span class="btn__tag">Demo</span></a>
+      <a class="btn btn--primary" href="/contact/?service=${service.slug}">Request a quote <span class="btn__tag">Demo</span></a>
       <a class="btn btn--ghost" href="/tracking/">Track a shipment <span class="btn__tag">Simulated</span></a>
     </div>
   </header>
@@ -142,4 +142,16 @@ ${rows}
   </tbody>
 </table>
 </div>`;
+}
+
+// <option>s for the demo request form, from the same data as the pages.
+export function renderServiceOptions() {
+  return SERVICES.map((service) => `<option value="${service.slug}">${esc(service.name)}</option>`).join('\n');
+}
+
+export function renderHubOptions() {
+  return [...HUBS]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((hub) => `<option value="${hub.id}">${esc(hub.name)}</option>`)
+    .join('\n');
 }

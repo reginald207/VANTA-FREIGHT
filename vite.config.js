@@ -6,7 +6,9 @@ import { renderNetworkSvg } from './src/data/network-svg.js';
 import {
   renderCredits,
   renderFleetClasses,
+  renderHubOptions,
   renderServiceHead,
+  renderServiceOptions,
   renderServicePage,
   renderServicesIndex,
 } from './src/data/render-pages.js';
@@ -37,6 +39,8 @@ export default defineConfig({
         'service-page': renderServicePage,
         'fleet-classes': renderFleetClasses,
         credits: renderCredits,
+        'service-options': renderServiceOptions,
+        'hub-options': renderHubOptions,
       },
     }),
     // The Latin subset of Archivo sets every headline and paragraph.

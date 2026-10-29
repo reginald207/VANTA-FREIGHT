@@ -87,6 +87,11 @@ p {
   border-radius: 2px;
 }
 
+/* `hidden` always wins, even over components that set their own display. */
+[hidden] {
+  display: none !important;
+}
+
 /* Utilities */
 .visually-hidden {
   position: absolute !important;
