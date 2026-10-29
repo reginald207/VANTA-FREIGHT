@@ -11,6 +11,7 @@ import { after, before, describe, test } from 'node:test';
 import { gzipSync } from 'node:zlib';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
+import { HUBS, LANES } from '../src/data/network.js';
 
 const root = resolve(import.meta.dirname, '..');
 const ROUTES = ['/', '/services/', '/fleet/', '/about/', '/tracking/', '/contact/', '/404.html'];
@@ -42,6 +43,23 @@ async function open(path, { context: contextOptions = {}, browserInstance = brow
   await page.goto(base + path, { waitUntil: 'networkidle' });
   return { page, context, errors };
 }
+
+// Scrolls to scene-local time t (0-1 across the scene's sticky span) and lets
+// the scrubbed film catch up.
+async function scrollToScene(page, scene, t) {
+  await page.evaluate(
+    ([name, local]) => {
+      const el = document.querySelector(`[data-scene="${name}"]`);
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, top + local * Math.max(0, el.offsetHeight - window.innerHeight));
+    },
+    [scene, t],
+  );
+  await page.waitForTimeout(1800);
+}
+
+const stageOpacity = (page) =>
+  page.evaluate(() => Number(getComputedStyle(document.querySelector('canvas.vf-stage')).opacity));
 
 const stageSettled = (page, value) =>
   page.waitForFunction((expected) => document.documentElement.dataset.vfStage === expected, value, {
@@ -113,6 +131,70 @@ describe('home tiers', () => {
     await context.close();
   });
 
+  test('the film plays through every scene and back', async () => {
+    const { page, context, errors } = await open('/?tier=2');
+    await stageSettled(page, 'live');
+
+    await scrollToScene(page, 'network', 0.95);
+    const labels = await page.evaluate(() => Number(document.querySelector('.network-labels').style.opacity));
+    assert.ok(labels > 0.5, `network labels visible (${labels})`);
+
+    await scrollToScene(page, 'cargo', 1);
+    assert.equal(await page.locator('.cargo-item.is-active').count(), 1);
+
+    await scrollToScene(page, 'track', 0.5);
+    assert.ok((await stageOpacity(page)) < 0.5, 'stage dims behind the tracking preview');
+
+    await scrollToScene(page, 'arrival', 0.4);
+    assert.ok((await stageOpacity(page)) > 0.9, 'stage returns for the arrival');
+
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForTimeout(1800);
+    assert.ok((await stageOpacity(page)) < 0.05, 'stage fades out before the footer');
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(1800);
+    assert.ok((await stageOpacity(page)) > 0.95, 'stage is back for the hero');
+    assert.equal(await page.locator('.network-labels').evaluate((el) => el.style.opacity), '0');
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('Tier 1 shows the static network map, and the stats match the data', async () => {
+    const { page, context, errors } = await open('/?tier=1');
+    await stageSettled(page, 'poster');
+    assert.ok(await page.locator('.network-map').isVisible());
+    assert.equal(await page.locator('.network-map__hub').count(), HUBS.length);
+    assert.equal(await page.locator('.network-map__lane').count(), LANES.length);
+    const counts = await page.$$eval('[data-count]', (els) => els.map((el) => Number(el.dataset.count)));
+    assert.deepEqual(counts.slice(0, 2), [HUBS.length, LANES.length]);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('the Reduce motion toggle switches to the poster and persists', async () => {
+    const { page, context, errors } = await open('/?tier=2');
+    await stageSettled(page, 'live');
+    const toggle = page.locator('.motion-toggle');
+    assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
+    await toggle.click();
+    await stageSettled(page, 'poster');
+    assert.equal(await toggle.getAttribute('aria-pressed'), 'true');
+    assert.match(await page.getAttribute('html', 'data-vf-tier-reason'), /reduced-motion/);
+
+    // Persists across a reload (an unforced load honours the stored choice).
+    await page.goto(`${base}/`, { waitUntil: 'networkidle' });
+    await stageSettled(page, 'poster');
+    assert.match(await page.getAttribute('html', 'data-vf-tier-reason'), /reduced-motion/);
+    assert.ok(await page.evaluate(() => document.documentElement.classList.contains('vf-reduced-motion')));
+
+    // Turning it off reloads into the full experience.
+    await Promise.all([page.waitForEvent('load'), page.locator('.motion-toggle').click()]);
+    assert.equal(await page.evaluate(() => localStorage.getItem('vf-motion')), 'allow');
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   test('losing the WebGL context swaps back to the poster', async () => {
     const { page, context, errors } = await open('/?tier=2');
     await stageSettled(page, 'live');
@@ -172,6 +254,16 @@ describe('keyboard and navigation', () => {
     assert.ok(top >= 0, 'skip link is on screen when focused');
     await page.keyboard.press('Enter');
     assert.equal(await page.evaluate(() => document.activeElement?.id), 'main');
+    await context.close();
+  });
+
+  test('"Skip the film" jumps straight to the final chapter', async () => {
+    const { page, context } = await open('/');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement?.textContent.trim()), 'Skip the film');
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(() => document.activeElement?.id), 'arrival');
     await context.close();
   });
 

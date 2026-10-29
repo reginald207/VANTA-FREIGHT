@@ -5,7 +5,7 @@
 > **Status values:** `APPROVED`, meaning it may ship; `CANDIDATE`, meaning evaluation is pending; `REJECTED`, meaning it must not ship.
 > **Verification levels:** **[VERIFIED]** means the licence text or metadata was read from a primary source. **[SECONDARY]** means it is known only from search-result summaries, because the primary page was blocked from this environment. **[UNVERIFIED]** means it has not been checked.
 
-Last updated: 2026-10-29 (milestone M1).
+Last updated: 2026-10-29 (milestone M2).
 
 ---
 
@@ -37,6 +37,7 @@ Last updated: 2026-10-29 (milestone M1).
 | L5 | @fontsource-variable/jetbrains-mono | 5.3.0 | npm | OFL-1.1 | **[VERIFIED]** package.json plus LICENSE file, 2026-10-28 | APPROVED |
 | L6 | @fontsource-variable/inter (alternate only) | 5.3.0 | npm | OFL-1.1 | **[VERIFIED]** package.json plus LICENSE file, 2026-10-28 | CANDIDATE (not planned) |
 | L7 | @gltf-transform/cli (dev tool, not shipped) | 4.5.1 | npm | MIT | **[VERIFIED]** npm metadata; ran successfully here | APPROVED (tooling, not installed in the project) |
+| L10 | lighthouse (audit tool, run ad hoc via a scratch install; not a project dependency) | 13.6.0 | npm `lighthouse` | Apache-2.0 | **[VERIFIED]** npm metadata, 2026-10-29 | APPROVED (tooling) |
 | L9 | playwright (dev only, not shipped) | 1.63.0 | npm `playwright` | Apache-2.0 | **[VERIFIED]** package.json `license` and bundled LICENSE file, 2026-10-29. Pinned to the version pre-installed in the cloud environment. | APPROVED (tooling) |
 | L8 | Draco / Basis decoders | bundled with three 0.186.1 | `three/examples/jsm/libs/{draco,basis}` | Apache-2.0 (Draco, Basis Universal) [ASSUMPTION: confirm from each folder's README at time of use] | Files present in the package **[VERIFIED]**. Licence not yet read. | CANDIDATE: only if compression is used |
 
@@ -83,6 +84,7 @@ Last updated: 2026-10-29 (milestone M1).
 |---|---|---|---|---|
 | I1 | Hero posters: `public/posters/hero-desktop.{webp,jpg}` (1920×1080), `hero-mobile.{webp,jpg}` (900×1600) | **Self-rendered** from the M1 scene by `npm run posters` (browser canvas encoder, WebP and JPEG; AVIF is not available from the canvas encoder) | Original work | **APPROVED** (M1) |
 | I2 | Open Graph / social images | Self-rendered | Original work | Planned |
+| I4 | Network map, crates, fleet variants, x-ray outline (M2) | Generated in code from `src/data/network.js` and the procedural truck; no external files | Original work | **APPROVED** (M2) |
 | I3 | Favicon: `public/favicon.svg` | Self-made SVG ("V" monogram in lime on obsidian) | Original work | **APPROVED** (M1) |
 | — | Stock photography / video | **None planned.** The cinematic look comes from real-time 3D, SVG, and typography. Any future stock asset needs a row here with its licence verified first-hand. | — | — |
 | — | Audio | **None planned.** If added, it must be opt-in, muted by default, and CC0. | — | — |

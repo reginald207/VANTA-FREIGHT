@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "posters": "node scripts/render-posters.mjs",
     "pretest:smoke": "vite build",
+    "test": "node --test tests/choreography.test.mjs",
     "test:smoke": "node --test --test-concurrency=1 tests/*.test.mjs"
   },
   "dependencies": {

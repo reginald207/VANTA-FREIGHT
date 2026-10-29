@@ -3,6 +3,7 @@ import '@fontsource-variable/archivo/wdth.css';
 import '@fontsource-variable/jetbrains-mono';
 import '../styles/tokens.css';
 import '../styles/base.css';
+import { prefersReducedMotion, setReducedMotion } from '../core/motion-preference.js';
 
 function initNavToggle() {
   const toggle = document.querySelector('.nav-toggle');
@@ -23,4 +24,18 @@ function initNavToggle() {
   });
 }
 
+// "Reduce motion" toggle (needs JS, so it stays hidden without it).
+function initMotionToggle() {
+  const button = document.querySelector('.motion-toggle');
+  if (!button) return;
+  const sync = () => button.setAttribute('aria-pressed', String(prefersReducedMotion()));
+  button.hidden = false;
+  sync();
+  button.addEventListener('click', () => {
+    setReducedMotion(!prefersReducedMotion());
+    sync();
+  });
+}
+
 initNavToggle();
+initMotionToggle();

@@ -256,6 +256,54 @@ p {
   border: 1px solid var(--vf-lime);
 }
 
+.motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: var(--vf-step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vf-steel);
+  cursor: pointer;
+}
+
+.motion-toggle:hover {
+  color: var(--vf-ice);
+}
+
+.motion-toggle__icon {
+  position: relative;
+  width: 1.9rem;
+  height: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+}
+
+.motion-toggle__icon::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: currentColor;
+  transition: transform var(--vf-dur-fast) var(--vf-ease-out);
+}
+
+.motion-toggle[aria-pressed='true'] {
+  color: var(--vf-lime);
+}
+
+.motion-toggle[aria-pressed='true'] .motion-toggle__icon::after {
+  transform: translateX(0.9rem);
+}
+
 .nav-tag {
   font-family: var(--vf-font-mono);
   font-size: 0.65rem;

@@ -154,24 +154,47 @@ main:focus {
   background: currentColor;
 }
 
-/* Scene 2: departure (static default: a plain list) */
-.departure {
+/* Scenes 2-7. Static default: ordinary stacked sections. */
+.scene {
   position: relative;
   padding: var(--vf-space-xl) var(--vf-gutter);
 }
 
-.departure__stage {
+.scene:focus {
+  outline: none;
+}
+
+.scene__stage {
   display: grid;
   align-content: center;
-  gap: var(--vf-space-s);
+  gap: var(--vf-space-m);
   max-width: var(--vf-max);
   margin-inline: auto;
 }
 
+.scene__copy {
+  display: grid;
+  gap: var(--vf-space-s);
+  align-content: start;
+  max-width: 36rem;
+}
+
+.scene__title,
 .departure__title {
   font-size: var(--vf-step-3);
   text-transform: uppercase;
   max-width: 14ch;
+}
+
+.scene__lede {
+  font-size: var(--vf-step-1);
+  line-height: 1.45;
+  max-width: 34ch;
+}
+
+/* Scene 2: departure statements */
+.departure__stage {
+  gap: var(--vf-space-s);
 }
 
 .departure__list {
@@ -219,32 +242,287 @@ main:focus {
   font-size: var(--vf-step--1);
 }
 
-/* After the film */
-.after-film {
-  position: relative;
-  padding: var(--vf-space-xl) var(--vf-gutter);
-  background: linear-gradient(to bottom, rgb(9 11 10 / 0), var(--vf-obsidian) 30%);
+/* Scene 3: network stats and static map */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vf-space-s) var(--vf-space-m);
+  margin-top: var(--vf-space-xs);
 }
 
-.after-film:focus {
-  outline: none;
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.2rem;
+  min-width: 6rem;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--vf-lime);
 }
 
-.after-film__inner {
+.stat dd {
+  margin: 0;
+  font-family: var(--vf-font-display);
+  font-stretch: var(--vf-stretch-display);
+  font-weight: 800;
+  font-size: var(--vf-step-3);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat dt {
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vf-steel);
+}
+
+.stats__note {
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  color: var(--vf-steel);
+}
+
+.network-figure {
+  margin: 0;
+  width: 100%;
+}
+
+.network-map {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.network-map__lane {
+  fill: none;
+  stroke: var(--vf-lime);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+}
+
+.network-map__lane--minor {
+  stroke-opacity: 0.5;
+}
+
+.network-map__hub circle {
+  fill: var(--vf-lime);
+}
+
+.network-map__hub text {
+  font-family: var(--vf-font-mono);
+  font-size: 3.2px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--vf-ice);
+}
+
+.network-map__truck circle {
+  fill: none;
+  stroke: var(--vf-ice);
+  stroke-width: 0.6;
+}
+
+/* Hub labels projected over the live network (decorative, aria-hidden) */
+.network-labels {
+  position: fixed;
+  inset: 0;
+  z-index: var(--vf-z-stage);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.network-labels__hub {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 0 0 0.9rem;
+  margin-top: -0.55rem;
+  font-family: var(--vf-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--vf-ice);
+  text-shadow: 0 0 6px var(--vf-obsidian);
+}
+
+/* Scene 4: cargo categories */
+.cargo-list,
+.fleet-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: var(--vf-space-xs);
+}
+
+.cargo-item {
+  display: grid;
+  grid-template-columns: 1.1rem 1fr;
+  gap: 0.15rem 0.9rem;
+  padding: 0.8rem 1rem;
+  border-left: 2px solid var(--vf-line);
+  background: rgb(9 11 10 / 0.55);
+  transition:
+    border-color var(--vf-dur) linear,
+    background-color var(--vf-dur) linear;
+}
+
+.cargo-item.is-active {
+  border-left-color: var(--vf-lime);
+  background: rgb(21 25 22 / 0.85);
+}
+
+.cargo-item__chip {
+  grid-row: span 2;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-top: 0.35rem;
+  border: 1px solid var(--vf-steel);
+}
+
+.cargo-item__chip--palletised {
+  background: #3b463f;
+}
+
+.cargo-item__chip--temperature {
+  background: #cfd8d3;
+}
+
+.cargo-item__chip--oversized {
+  background: #6c7a72;
+}
+
+.cargo-item__chip--time-critical {
+  background: var(--vf-lime);
+}
+
+.cargo-item__title,
+.fleet-list__name {
+  font-weight: 700;
+  font-stretch: 85%;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.cargo-item__copy,
+.fleet-list__use {
+  color: var(--vf-steel);
+  font-size: var(--vf-step--1);
+}
+
+/* Scene 5: fleet classes */
+.fleet-list__item {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 0.1rem 0.9rem;
+  padding: 0.7rem 1rem;
+  border-left: 2px solid var(--vf-line);
+  background: rgb(9 11 10 / 0.55);
+}
+
+.fleet-list__code {
+  grid-row: span 2;
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  color: var(--vf-lime);
+  padding-top: 0.15rem;
+}
+
+/* Scene 6: simulated tracking preview */
+.track-card {
   display: grid;
   gap: var(--vf-space-s);
-  max-width: var(--vf-max);
-  margin-inline: auto;
+  align-self: center;
+  width: min(100%, 26rem);
+  padding: 1.5rem;
+  border: 1px solid var(--vf-line);
+  background: var(--vf-carbon);
 }
 
-.after-film__title {
-  font-size: var(--vf-step-3);
+.track-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.track-card__badge {
+  padding: 0.2rem 0.5rem;
+  background: var(--vf-lime);
+  color: var(--vf-obsidian);
+  font-family: var(--vf-font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  max-width: 16ch;
 }
 
-/* Tier 2: the scroll film. The departure section becomes a tall track with a
-   sticky stage (a CSS pin: no pin-spacer, robust on iOS). */
+.track-card__id {
+  font-family: var(--vf-font-mono);
+  font-stretch: normal;
+  font-size: var(--vf-step-1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.track-card__route {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.track-card__arrow {
+  color: var(--vf-lime);
+}
+
+.track-card__progress {
+  height: 4px;
+  background: var(--vf-carbon-2);
+}
+
+.track-card__bar {
+  display: block;
+  height: 100%;
+  background: var(--vf-lime);
+  transform: scaleX(var(--value, 0));
+  transform-origin: left;
+}
+
+.track-card__events {
+  display: grid;
+  gap: 0.4rem;
+  font-size: var(--vf-step--1);
+}
+
+.track-card__time {
+  display: inline-block;
+  min-width: 8.5rem;
+  font-family: var(--vf-font-mono);
+  color: var(--vf-steel);
+}
+
+.track-card__note {
+  font-family: var(--vf-font-mono);
+  font-size: 0.75rem;
+  color: var(--vf-steel);
+}
+
+.track-card .btn {
+  justify-self: start;
+}
+
+@media (min-width: 52rem) {
+  .scene--network .scene__stage,
+  .scene--track .scene__stage {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+/* Tier 2: the scroll film. Each scene becomes a tall track with a sticky
+   stage (a CSS pin: no pin-spacer, robust on iOS). */
 .vf-tier-2 .hero__poster::after {
   display: none;
 }
@@ -265,12 +543,18 @@ main:focus {
   pointer-events: none;
 }
 
-.vf-tier-2 .departure {
-  height: 250svh;
+.vf-tier-2 .scene {
+  height: var(--scene-height, 250svh);
   padding: 0;
 }
 
-.vf-tier-2 .departure__stage {
+.vf-tier-2 .scene--fleet,
+.vf-tier-2 .scene--track,
+.vf-tier-2 .scene--arrival {
+  --scene-height: 200svh;
+}
+
+.vf-tier-2 .scene__stage {
   position: sticky;
   top: 0;
   min-height: 100svh;
@@ -279,8 +563,8 @@ main:focus {
   isolation: isolate;
 }
 
-/* Legibility scrim behind the statements, over the live scene */
-.vf-tier-2 .departure__stage::before {
+/* Legibility scrim behind each scene's copy, over the live scene */
+.vf-tier-2 .scene__stage::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -289,7 +573,22 @@ main:focus {
   pointer-events: none;
 }
 
-.vf-tier-2 .statement:focus-within {
+/* The track scene dims the stage itself; no scrim needed. */
+.vf-tier-2 .scene--track .scene__stage::before {
+  display: none;
+}
+
+/* The live network replaces the static map. */
+.vf-tier-2 .network-figure {
+  display: none;
+}
+
+.vf-tier-2 .scene--network .scene__stage {
+  grid-template-columns: none;
+}
+
+.vf-tier-2 .statement:focus-within,
+.vf-tier-2 [data-reveal]:focus-within {
   opacity: 1 !important;
 }
 
@@ -312,7 +611,8 @@ main:focus {
 .vf-capture main,
 .vf-capture .site-footer,
 .vf-capture .skip-link,
-.vf-capture .load-progress {
+.vf-capture .load-progress,
+.vf-capture .network-labels {
   visibility: hidden;
 }
 
@@ -335,16 +635,63 @@ main:focus {
     right: auto;
   }
 
-  .vf-tier-2 .departure__stage {
+  /* Shorter pins on phones */
+  .vf-tier-2 .scene {
+    --scene-height: 200svh;
+  }
+
+  .vf-tier-2 .scene--fleet,
+  .vf-tier-2 .scene--track,
+  .vf-tier-2 .scene--arrival {
+    --scene-height: 170svh;
+  }
+
+  .vf-tier-2 .scene__stage {
     align-content: end;
     padding-bottom: 2rem;
+  }
+
+  /* Compact copy so the 3D subject keeps the top of the screen */
+  .vf-tier-2 .scene__stage {
+    gap: 0.75rem;
+  }
+
+  .vf-tier-2 .scene__copy {
+    gap: 0.6rem;
+  }
+
+  .vf-tier-2 .scene__title {
+    font-size: var(--vf-step-2);
+  }
+
+  .vf-tier-2 .scene__lede {
+    font-size: var(--vf-step-0);
+  }
+
+  .stats {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+  }
+
+  .stat {
+    min-width: 0;
+    padding-left: 0.6rem;
+  }
+
+  .stat dd {
+    font-size: var(--vf-step-2);
+  }
+
+  .cargo-item,
+  .fleet-list__item {
+    padding: 0.5rem 0.8rem;
   }
 
   .vf-tier-2 .hero::before {
     background: linear-gradient(to bottom, rgb(9 11 10 / 0.9) 0%, rgb(9 11 10 / 0.7) 45%, rgb(9 11 10 / 0) 70%);
   }
 
-  .vf-tier-2 .departure__stage::before {
+  .vf-tier-2 .scene__stage::before {
     background: linear-gradient(to top, rgb(9 11 10 / 0.92) 0%, rgb(9 11 10 / 0.75) 55%, rgb(9 11 10 / 0) 80%);
   }
 
@@ -354,5 +701,9 @@ main:focus {
 
   .statement__link {
     padding: 0.75rem 1rem;
+  }
+
+  .track-card {
+    padding: 1.1rem;
   }
 }

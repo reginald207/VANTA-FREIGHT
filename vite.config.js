@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import htmlPartials from './plugins/html-partials.js';
+import { renderNetworkSvg } from './src/data/network-svg.js';
 
 const root = import.meta.dirname;
 
@@ -16,7 +17,7 @@ const pages = {
 };
 
 export default defineConfig({
-  plugins: [htmlPartials()],
+  plugins: [htmlPartials({ renderers: { 'network-map': renderNetworkSvg } })],
   build: {
     target: 'es2022',
     assetsInlineLimit: 0,

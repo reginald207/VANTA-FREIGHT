@@ -82,11 +82,35 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
 
 ---
 
-## Phase 3 — M2: Home film complete
+## Phase 3 — M2: Home film complete ✅ (built 2026-10-29, awaiting owner review)
 - Scenes 3–7 (network routes shader, cargo x-ray and instanced crates, fleet line-up, track teaser, arrival CTA).
-- Mobile choreography set via `gsap.matchMedia()`, with shorter pins.
+- Mobile choreography with shorter pins.
 - "Skip intro sequence" link and in-page motion toggle.
 - **Acceptance:** full storyboard in Tier 2; Tier 1 equivalent content; Lighthouse mobile Performance ≥ 85 and Accessibility ≥ 95 on Home.
+
+### M2 acceptance status
+- [x] Scenes 3–7 run in Tier 2, forwards and backwards (smoke test plays the whole film and back).
+- [x] Tier 1 equivalent content: every chapter is HTML; the network becomes a static SVG built from the same data at build time.
+- [x] Mobile: separate portrait camera keyframes, compact copy, shorter pins (170–200 svh), fewer network lanes (core lanes only).
+- [x] "Skip the film" link (second Tab stop, jumps to the final chapter) and a "Reduce motion" toggle in the header that persists and can override the OS setting in either direction.
+- [x] Lighthouse Accessibility **100** on Home (≥ 95).
+- [ ] Lighthouse mobile Performance ≥ 85 on Home: **not met in the container lab**. Measured with Lighthouse 13.6 (mobile, 4× CPU throttle, software WebGL):
+
+  | Home | Performance | Accessibility | Best practices | SEO | LCP | TBT | CLS |
+  |---|---|---|---|---|---|---|---|
+  | Live 3D (default) | 65 | 100 | 100 | 100 | 0.9 s | 17.4 s | 0.027 |
+  | Static (`?tier=1`) | 100 | 100 | 100 | 100 | 0.9 s | 70 ms | 0.027 |
+
+  The blocking time comes from rendering 3D frames on a throttled CPU with no GPU. It must be re-measured on a real phone (or Lighthouse run against the Vercel preview on real hardware) before this item can close. Content pages (`/services/`, `/about/`) score 100 in all four categories.
+
+### M2 implementation notes
+- **One source of truth for the film.** `src/webgl/choreography.js` derives every scene value (headlights, fog, network, x-ray, crates, fleet, dimming, departure) from a single scrubbed progress value. Camera keyframes are anchored to scenes and mapped to progress from the measured layout on every ScrollTrigger refresh. It has no three.js imports and is unit-tested in Node (`npm test`).
+- **Fictional network data** lives in `src/data/network.js` (12 hubs, 18 lanes, abstract coordinates). It drives the 3D network, the static SVG (via a new `<!-- @render -->` directive in the partials plugin) and the tests.
+- **Truck variants:** the procedural truck now builds `semi`, `rigid` and `tractor` classes from shared parts, and the semi's trailer has an x-ray mode (fading shell, lime frame outline).
+- **LCP fix:** the hero lede is no longer hidden by the intro, and the 3D boot waits for `load` plus an idle callback. Home LCP went from 6.3 s to 0.9 s in the lab.
+- **Struggling devices:** frame-time checks use real wall-clock time (GSAP's delta is lag-smoothed), clamp single hitches, judge in 1.5 s windows, drop straight to the minimum resolution when far too slow, and fall back to the poster after two very slow windows. An abandoned 3D load (past the 3 s deadline) now stops before compiling shaders.
+- The stage stops drawing (but keeps updating) while it is fully faded, instead of relying on a footer trigger that could freeze the fade part-way.
+- Desktop pins total about 1,450 svh (scenes at 250/250/250/200/200/200 svh after a 100 svh hero), which matches the storyboard's pinned durations.
 
 ## Phase 4 — M3: Content pages
 - Services index plus four service detail pages from `data/services.js` (one template).

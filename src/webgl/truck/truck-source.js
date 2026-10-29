@@ -10,17 +10,18 @@
  * @property {(distance: number) => void} setDistance  Rolls the wheels to a travelled distance.
  * @property {(value: number) => void} setHeadlights   0 = parked, 1 = full beam.
  * @property {(value: number) => void} setStrip        Lime light-strip intensity, 0 to 1.
+ * @property {(value: number) => void} setXray         Cargo box see-through, 0 = solid, 1 = x-ray.
  */
 
 /**
- * @param {{type: 'procedural'}} [source]
+ * @param {{type: 'procedural', variant?: 'semi' | 'rigid' | 'tractor'}} [source]
  * @returns {Promise<Truck>}
  */
 export async function createTruck(source = { type: 'procedural' }) {
   switch (source.type) {
     case 'procedural': {
       const { createProceduralTruck } = await import('./procedural-truck.js');
-      return createProceduralTruck();
+      return createProceduralTruck({ variant: source.variant });
     }
     default:
       throw new Error(`Unknown truck source: ${source.type}`);
