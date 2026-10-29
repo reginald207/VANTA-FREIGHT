@@ -454,3 +454,150 @@ describe('content pages without motion', () => {
     }
   });
 });
+
+// Records every request a page makes from now on.
+function recordRequests(page) {
+  const requests = [];
+  page.on('request', (request) => requests.push(`${request.method()} ${request.url()}`));
+  return requests;
+}
+
+describe('simulated tracking', () => {
+  test('a deep link shows a clearly labelled simulated result', async () => {
+    const { page, context, errors } = await open('/tracking/?id=VF-DEMO-0001');
+    assert.ok(await page.locator('.sim-banner').isVisible());
+    const result = page.locator('.tracker__result');
+    assert.ok(await result.isVisible());
+    assert.match(await result.locator('.sim-banner__badge').innerText(), /^simulation$/i);
+    assert.equal(await result.locator('.sim-banner__badge').evaluate((el) => getComputedStyle(el).textTransform), 'uppercase');
+    assert.match(await result.locator('.shipment__status').innerText(), /in transit towards port kestrel/i);
+    assert.equal(await result.locator('progress').getAttribute('value'), '62');
+    assert.equal(await result.locator('.route-map__marker').count(), 1);
+    assert.equal(await result.locator('[aria-current="step"]').count(), 1);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('tracking makes no network requests and is deterministic', async () => {
+    const { page, context } = await open('/tracking/');
+    const requests = recordRequests(page);
+    const read = async (id) => {
+      await page.fill('#shipment-id', id);
+      await page.press('#shipment-id', 'Enter');
+      return page.locator('.tracker__result').innerText();
+    };
+    const first = await read('vf-test-42');
+    for (const id of ['VF-DEMO-0002', 'VF-DEMO-0003', 'VF-ANOTHER-1']) await read(id);
+    const again = await read('VF-TEST-42');
+    assert.equal(again, first, 'same ID, same story');
+    assert.match(page.url(), /\?id=VF-TEST-42$/);
+    await page.click('[data-demo-id="VF-DEMO-0002"]');
+    assert.match(await page.locator('.tracker__status').innerText(), /Simulated result for VF-DEMO-0002/);
+    assert.deepEqual(requests, []);
+    await context.close();
+  });
+
+  test('an invalid ID is explained and focus returns to the field', async () => {
+    const { page, context } = await open('/tracking/');
+    await page.fill('#shipment-id', 'ABC');
+    await page.press('#shipment-id', 'Enter');
+    const input = page.locator('#shipment-id');
+    assert.equal(await input.getAttribute('aria-invalid'), 'true');
+    assert.match(await input.getAttribute('aria-describedby'), /shipment-id-error/);
+    assert.ok(await page.locator('#shipment-id-error').isVisible());
+    assert.ok(await input.evaluate((el) => el === document.activeElement));
+    assert.ok(!(await page.locator('.tracker__result').isVisible()));
+    await context.close();
+  });
+
+  test('without JavaScript the tracker is switched off and says why', async () => {
+    const { page, context } = await open('/tracking/', { context: { javaScriptEnabled: false } });
+    assert.ok(await page.locator('.tracker__fieldset').evaluate((el) => el.disabled));
+    assert.match(await page.locator('noscript').first().innerHTML(), /needs JavaScript/);
+    await context.close();
+  });
+});
+
+describe('demo request form', () => {
+  const fillQuote = async (page) => {
+    await page.selectOption('#service', 'linehaul');
+    await page.selectOption('#origin', 'northgate');
+    await page.selectOption('#destination', 'kestrel');
+    await page.fill('#readyDate', '2099-01-15');
+    await page.fill('#pallets', '10');
+    await page.fill('#name', 'Ada Example');
+    await page.fill('#email', 'ada@example.com');
+  };
+
+  test('errors are summarised, linked and announced by focus', async () => {
+    const { page, context, errors } = await open('/contact/');
+    await page.click('.request__submit');
+    const summary = page.locator('.error-summary');
+    assert.ok(await summary.isVisible());
+    assert.ok(await summary.evaluate((el) => el === document.activeElement), 'focus moves to the summary');
+    assert.ok(!(await page.locator('.request__done').isVisible()));
+    const links = summary.locator('a');
+    assert.ok((await links.count()) >= 5);
+    await links.first().click();
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'service');
+    assert.equal(await page.getAttribute('#email', 'aria-invalid'), 'true');
+    assert.match(await page.getAttribute('#email', 'aria-describedby'), /email-error/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  test('a valid request sends nothing, stores nothing and says so', async () => {
+    const { page, context } = await open('/contact/');
+    const requests = recordRequests(page);
+    await page.click('.request__submit');
+    await fillQuote(page);
+    await page.click('.request__submit');
+    const done = page.locator('.request__done');
+    assert.ok(await done.isVisible());
+    assert.ok(await done.evaluate((el) => el === document.activeElement));
+    assert.match(await done.innerText(), /Nothing was sent/i);
+    assert.ok(!(await page.locator('.request__form').isVisible()));
+    assert.ok(!(await page.locator('.error-summary').isVisible()));
+    assert.deepEqual(requests, [], 'no network requests');
+    assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0);
+    assert.doesNotMatch(page.url(), /ada|example/i, 'nothing in the URL');
+
+    await page.click('[data-restart]');
+    assert.equal(await page.inputValue('#name'), '', 'the form was cleared');
+    await context.close();
+  });
+
+  test('a question hides the load fields and needs a message', async () => {
+    const { page, context } = await open('/contact/');
+    await page.check('#type-question');
+    assert.ok(!(await page.locator('.request__quote').isVisible()));
+    await page.fill('#name', 'Ada');
+    await page.fill('#email', 'ada@example.com');
+    await page.click('.request__submit');
+    assert.deepEqual(
+      await page.$$eval('.error-summary a', (links) => links.map((link) => link.textContent)),
+      ['Enter your question.'],
+    );
+    await context.close();
+  });
+
+  test('a service page link prefills the service', async () => {
+    const { page, context } = await open('/contact/?service=expedited');
+    assert.equal(await page.inputValue('#service'), 'expedited');
+    await context.close();
+  });
+
+  test('without JavaScript the form is switched off, so nothing can be sent', async () => {
+    const { page, context } = await open('/contact/', { context: { javaScriptEnabled: false } });
+    assert.ok(await page.locator('.request__all').evaluate((el) => el.disabled));
+    assert.match(await page.locator('noscript').first().innerHTML(), /nothing you type can be sent/);
+    await context.close();
+  });
+
+  test('there are no real-looking contact details anywhere on the page', async () => {
+    const { page, context } = await open('/contact/');
+    const text = await page.locator('main').innerText();
+    assert.doesNotMatch(text, /@[a-z0-9-]+\.[a-z]{2,}|\+?\d[\d\s()-]{8,}\d/i);
+    await context.close();
+  });
+});

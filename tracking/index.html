@@ -3,20 +3,74 @@
   <head>
     <!-- @include head.html -->
     <title>Tracking (simulated) · VANTA FREIGHT</title>
-    <meta name="description" content="A simulated tracker: enter a demo ID and watch a fictional shipment move across a fictional network." />
+    <meta
+      name="description"
+      content="A simulated shipment tracker for the fictional VANTA FREIGHT network. It runs in your browser and never looks up a real shipment."
+    />
     <meta name="vf-page" content="tracking" />
-    <script type="module" src="/src/pages/base.js"></script>
+    <script type="module" src="/src/pages/tracking.js"></script>
   </head>
   <body>
     <!-- @include skip-link.html -->
     <!-- @include header.html -->
-    <main id="main" tabindex="-1" class="page">
-      <p class="eyebrow eyebrow--lime">VANTA FREIGHT</p>
-      <h1>Shipment tracking</h1>
-      <p class="page__lede">A simulated tracker: enter a demo ID and watch a fictional shipment move across a fictional network.</p>
-      <p class="page__status">Simulated tracking arrives in milestone M4.</p>
-      <p>When it arrives, tracking will be a clearly labelled simulation that runs in your browser. It will never look up a real shipment.</p>
-      <p><a class="btn btn--ghost" href="/">Back to the film</a></p>
+    <main id="main" tabindex="-1" class="content">
+      <header class="content-hero">
+        <p class="eyebrow eyebrow--lime">Tracking</p>
+        <h1>Track a shipment.</h1>
+        <p class="content-hero__lede">Follow a load across the fictional network, hub by hub.</p>
+      </header>
+
+      <aside class="sim-banner" aria-labelledby="sim-banner-title">
+        <p class="sim-banner__badge" id="sim-banner-title">Simulation</p>
+        <p>
+          This tracker is a simulation. It runs entirely in your browser, makes no network requests, and never looks up a
+          real shipment. The same ID always tells the same story.
+        </p>
+      </aside>
+
+      <section class="tracker" aria-labelledby="tracker-title">
+        <h2 id="tracker-title" class="visually-hidden">Find a shipment</h2>
+        <form class="tracker__form" novalidate>
+          <fieldset class="tracker__fieldset" disabled>
+            <legend class="visually-hidden">Shipment ID</legend>
+            <label class="field__label" for="shipment-id">Shipment ID</label>
+            <p class="field__hint" id="shipment-id-hint">
+              Starts with VF-, for example VF-DEMO-0001. You can also make one up.
+            </p>
+            <p class="field__error" id="shipment-id-error" hidden></p>
+            <div class="tracker__row">
+              <input
+                class="field__input"
+                id="shipment-id"
+                name="id"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                maxlength="30"
+                aria-describedby="shipment-id-hint"
+                required
+              />
+              <button class="btn btn--primary" type="submit">Track <span class="btn__tag">Simulated</span></button>
+            </div>
+            <div class="tracker__demos">
+              <span class="tracker__demos-label" id="demo-ids-label">Demo IDs:</span>
+              <ul class="tracker__demo-list" role="list" aria-labelledby="demo-ids-label">
+                <li><button class="tracker__demo" type="button" data-demo-id="VF-DEMO-0001">VF-DEMO-0001</button></li>
+                <li><button class="tracker__demo" type="button" data-demo-id="VF-DEMO-0002">VF-DEMO-0002</button></li>
+                <li><button class="tracker__demo" type="button" data-demo-id="VF-DEMO-0003">VF-DEMO-0003</button></li>
+              </ul>
+            </div>
+          </fieldset>
+          <noscript>
+            <p class="content-note">The tracker needs JavaScript, because the simulation runs in your browser.</p>
+          </noscript>
+        </form>
+
+        <div class="tracker__status visually-hidden" role="status" aria-live="polite"></div>
+        <div class="tracker__result" hidden></div>
+      </section>
     </main>
     <!-- @include footer.html -->
   </body>

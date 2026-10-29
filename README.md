@@ -10,7 +10,7 @@ A cinematic, multipage website for a **fictional** freight company: a design and
 
 ## Status
 
-Milestones **M1** (foundation and hero), **M2** (the full home film) and **M3** (content pages) are built. The home page runs all eight storyboard scenes. Services, the four service pages, Fleet (with a 3D viewer), About (with credits) and 404 are complete. Tracking and Contact are placeholders until M4.
+Milestones **M1–M4** are built: the full home film, Services and the four service pages, Fleet (with a 3D viewer), About (with credits), a **simulated** shipment tracker and a **demo** quote and contact form. Neither the tracker nor the form makes a network request. The remaining milestones are the optional asset upgrade (M5) and hardening and deployment (M6).
 
 ## Requirements
 
@@ -35,7 +35,7 @@ npm run preview      # serve the production build
 ```
 
 ```bash
-npm test             # unit tests (choreography, network data, adaptive resolution)
+npm test             # unit tests (choreography, network, tracking simulator, form validation)
 ```
 
 ```bash
@@ -67,7 +67,9 @@ index.html, services/ fleet/ about/ tracking/ contact/ 404.html   one HTML file 
 partials/            header, footer and head, included at build time
 plugins/             html-partials.js (includes and @render), preload-fonts.js
 public/              favicon, posters
-src/core/            capability tiers, motion preference
+src/core/            capability tiers, motion preference, scroll reveals
+src/tracking/        the deterministic shipment simulator
+src/forms/           demo form validation
 src/data/            fictional network, services, fleet and credits data, plus the
                      build-time renderers for the data-driven pages
 src/animation/       GSAP setup and section timelines

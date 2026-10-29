@@ -2,21 +2,189 @@
 <html lang="en" class="no-js">
   <head>
     <!-- @include head.html -->
-    <title>Contact (demo) · VANTA FREIGHT</title>
-    <meta name="description" content="A quote request and contact form for a fictional company." />
+    <title>Contact and quotes (demo) · VANTA FREIGHT</title>
+    <meta
+      name="description"
+      content="A demo quote and contact form for the fictional VANTA FREIGHT. It checks what you type and sends nothing."
+    />
     <meta name="vf-page" content="contact" />
-    <script type="module" src="/src/pages/base.js"></script>
+    <script type="module" src="/src/pages/contact.js"></script>
   </head>
   <body>
     <!-- @include skip-link.html -->
     <!-- @include header.html -->
-    <main id="main" tabindex="-1" class="page">
-      <p class="eyebrow eyebrow--lime">VANTA FREIGHT</p>
-      <h1>Contact and quotes</h1>
-      <p class="page__lede">A quote request and contact form for a fictional company.</p>
-      <p class="page__status">The demo form arrives in milestone M4.</p>
-      <p>When it arrives, the form will be a demo: it will not send your details anywhere.</p>
-      <p><a class="btn btn--ghost" href="/">Back to the film</a></p>
+    <main id="main" tabindex="-1" class="content">
+      <header class="content-hero">
+        <p class="eyebrow eyebrow--lime">Contact</p>
+        <h1>Get a quote or ask a question.</h1>
+        <p class="content-hero__lede">Tell us about the load. The form checks what you type and shows you the result.</p>
+      </header>
+
+      <aside class="sim-banner" aria-labelledby="demo-banner-title">
+        <p class="sim-banner__badge" id="demo-banner-title">Demo form</p>
+        <p>
+          Nothing you type here is sent, saved or shared, and there is no one to contact: VANTA FREIGHT is fictional.
+          Please do not enter real personal details.
+        </p>
+      </aside>
+
+      <section class="request" aria-labelledby="request-title">
+        <h2 id="request-title" class="visually-hidden">Request form</h2>
+
+        <div class="error-summary" tabindex="-1" aria-labelledby="error-summary-title" hidden>
+          <h3 class="error-summary__title" id="error-summary-title">There is a problem</h3>
+          <ul class="error-summary__list" role="list"></ul>
+        </div>
+
+        <form class="request__form" novalidate>
+          <fieldset class="request__all" disabled>
+            <legend class="visually-hidden">Request details</legend>
+
+            <fieldset class="field field--choice" id="field-type">
+              <legend class="field__label">What do you need?</legend>
+              <p class="field__error" id="type-error" hidden></p>
+              <div class="choice">
+                <input type="radio" id="type-quote" name="type" value="quote" checked />
+                <label for="type-quote">A quote for a load</label>
+              </div>
+              <div class="choice">
+                <input type="radio" id="type-question" name="type" value="question" />
+                <label for="type-question">Help with a question</label>
+              </div>
+            </fieldset>
+
+            <fieldset class="request__group request__quote">
+              <legend class="request__legend">About the load</legend>
+
+              <div class="field" id="field-service">
+                <label class="field__label" for="service">Service</label>
+                <p class="field__error" id="service-error" hidden></p>
+                <select class="field__input" id="service" name="service" required>
+                  <option value="">Choose a service</option>
+                  <!-- @render service-options -->
+                </select>
+              </div>
+
+              <div class="field-pair">
+                <div class="field" id="field-origin">
+                  <label class="field__label" for="origin">From</label>
+                  <p class="field__error" id="origin-error" hidden></p>
+                  <select class="field__input" id="origin" name="origin" required>
+                    <option value="">Choose a hub</option>
+                    <!-- @render hub-options -->
+                  </select>
+                </div>
+                <div class="field" id="field-destination">
+                  <label class="field__label" for="destination">To</label>
+                  <p class="field__error" id="destination-error" hidden></p>
+                  <select class="field__input" id="destination" name="destination" required>
+                    <option value="">Choose a hub</option>
+                    <!-- @render hub-options -->
+                  </select>
+                </div>
+              </div>
+              <p class="field__hint">All hubs are on the fictional network.</p>
+
+              <div class="field-pair">
+                <div class="field" id="field-readyDate">
+                  <label class="field__label" for="readyDate">Ready date</label>
+                  <p class="field__error" id="readyDate-error" hidden></p>
+                  <input class="field__input" id="readyDate" name="readyDate" type="date" required />
+                </div>
+                <div class="field" id="field-pallets">
+                  <label class="field__label" for="pallets">Pallets</label>
+                  <p class="field__hint" id="pallets-hint">From 1 to 33</p>
+                  <p class="field__error" id="pallets-error" hidden></p>
+                  <input
+                    class="field__input field__input--short"
+                    id="pallets"
+                    name="pallets"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="33"
+                    step="1"
+                    aria-describedby="pallets-hint"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="field" id="field-temperature">
+                <label class="field__label" for="temperature">Temperature <span class="field__optional">(optional)</span></label>
+                <select class="field__input" id="temperature" name="temperature">
+                  <option value="">Not needed</option>
+                  <option value="chilled">Chilled</option>
+                  <option value="frozen">Frozen</option>
+                </select>
+              </div>
+            </fieldset>
+
+            <fieldset class="request__group">
+              <legend class="request__legend">About you</legend>
+
+              <div class="field" id="field-name">
+                <label class="field__label" for="name">Name</label>
+                <p class="field__error" id="name-error" hidden></p>
+                <input class="field__input" id="name" name="name" type="text" autocomplete="name" maxlength="80" required />
+              </div>
+
+              <div class="field" id="field-email">
+                <label class="field__label" for="email">Email</label>
+                <p class="field__error" id="email-error" hidden></p>
+                <input
+                  class="field__input"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  spellcheck="false"
+                  required
+                />
+              </div>
+
+              <div class="field" id="field-company">
+                <label class="field__label" for="company">Company <span class="field__optional">(optional)</span></label>
+                <input class="field__input" id="company" name="company" type="text" autocomplete="organization" />
+              </div>
+
+              <div class="field" id="field-message">
+                <label class="field__label" for="message">Message</label>
+                <p class="field__hint" id="message-hint">Optional for quotes, needed for questions. Up to 1,000 characters.</p>
+                <p class="field__error" id="message-error" hidden></p>
+                <textarea
+                  class="field__input field__input--area"
+                  id="message"
+                  name="message"
+                  rows="5"
+                  maxlength="1000"
+                  aria-describedby="message-hint"
+                ></textarea>
+              </div>
+            </fieldset>
+
+            <button class="btn btn--primary request__submit" type="submit">
+              Send request <span class="btn__tag">Demo</span>
+            </button>
+          </fieldset>
+          <noscript>
+            <p class="content-note">
+              This demo form needs JavaScript. It is switched off without it, so nothing you type can be sent anywhere.
+            </p>
+          </noscript>
+        </form>
+
+        <div class="request__done" tabindex="-1" aria-labelledby="done-title" hidden>
+          <p class="sim-banner__badge">Demo</p>
+          <h2 id="done-title">Done. Nothing was sent.</h2>
+          <p>
+            Your request passed every check, and this is where a real carrier would receive it. VANTA FREIGHT is
+            fictional, so the form stops here: nothing left your browser, and nothing was saved.
+          </p>
+          <dl class="facts request__summary"></dl>
+          <button class="btn btn--ghost" type="button" data-restart>Start a new request</button>
+        </div>
+      </section>
     </main>
     <!-- @include footer.html -->
   </body>

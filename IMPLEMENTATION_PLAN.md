@@ -140,6 +140,20 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
 - Contact and quote forms: native constraint validation plus custom messages, demo-only submit message, **no network request** (Playwright asserts zero requests on submit).
 - **Acceptance:** spec §9 items 4 and 5.
 
+### M4 status (built 2026-10-29, awaiting owner review) ✅
+- [x] **Spec §9.4, tracking:** the SIMULATION badge is on the page and on every result. **Zero network requests** while tracking: a Playwright test records every request across several lookups. Results are deterministic: the same ID gives the same story, which is unit-tested for 300+ IDs and checked in the browser.
+- [x] **Spec §9.5, forms:** **zero network requests** and nothing stored (localStorage and sessionStorage empty, nothing in the URL) through failed and successful submits. The confirmation says "Done. Nothing was sent." The form is reset after success.
+- [x] Lighthouse lab (mobile): Tracking and Contact score 100 / 100 / 100 / 100, with CLS 0.
+- [x] Initial JS (gzip): Tracking 5.2 KB, Contact 2.0 KB, plus the 0.9 KB shared base.
+
+### M4 implementation notes
+- `src/tracking/simulator.js` is pure. It seeds an FNV-1a hash into mulberry32 and finds routes breadth-first over the fictional lanes. It uses a story clock ("Day 1 · 06:10") rather than real dates, and a unit test checks the source never reads the clock or the network. Three fixtures (`VF-DEMO-0001..0003`) tell in-transit, delivered and at-hub stories. 0001 matches the home page preview, which a test enforces.
+- The tracking result shows a progress bar (`<progress>`), the route map with completed legs, a part-drawn current leg and a truck marker, and a timeline with `aria-current="step"`. A polite live region announces each result, and `?id=` deep links work (the home preview uses one).
+- `src/forms/validate.js` is pure and unit-tested. The form follows the error-summary pattern: a focused summary with links to each field, inline errors wired with `aria-describedby` and `aria-invalid`, and a left border plus "Error:" text, so colour is never the only signal. The error colour #FF8A7A has 8.6:1 contrast.
+- **Privacy by construction:** both forms ship inside a `disabled` fieldset that JavaScript enables. Without JS nothing can be submitted, so personal details can never end up in a URL or a server log. The contact page has no phone numbers, emails or addresses; a test rejects anything that looks like one.
+- Service pages' "Request a quote" links prefill the service (`/contact/?service=…`).
+- Found and fixed: components that set `display` were overriding the `hidden` attribute, so the success panel showed under the form. A global `[hidden] { display: none !important }` fixes it everywhere, including the header's motion toggle, which used to show without JS.
+
 ## Phase 6 — M5: Asset upgrade (optional, gated on licence verification)
 - If a GLB truck is approved in `ASSET_MANIFEST.md`: optimise with gltf-transform (`dedup`, `prune`, `weld`, `draco` or `meshopt`, `resize --width 2048`, `webp`), map wheel and light nodes, apply the brand material override, and A/B it against the procedural truck.
 - **Acceptance:** model ≤ 1.5 MB; no fps regression; credits rendered.
