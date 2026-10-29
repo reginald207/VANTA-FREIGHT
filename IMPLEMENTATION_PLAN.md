@@ -85,7 +85,7 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
 ## Phase 3 — M2: Home film complete ✅ (built 2026-10-29, awaiting owner review)
 - Scenes 3–7 (network routes shader, cargo x-ray and instanced crates, fleet line-up, track teaser, arrival CTA).
 - Mobile choreography with shorter pins.
-- "Skip intro sequence" link and in-page motion toggle.
+- "Skip the film" link and in-page motion toggle.
 - **Acceptance:** full storyboard in Tier 2; Tier 1 equivalent content; Lighthouse mobile Performance ≥ 85 and Accessibility ≥ 95 on Home.
 
 ### M2 acceptance status

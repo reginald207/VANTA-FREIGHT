@@ -71,9 +71,9 @@ Last updated: 2026-10-29 (milestone M5).
 
 ### Recommendation
 
-1. **Ship M0 (procedural truck) for the first milestone.** It carries zero licence risk, adds no download weight, and keeps full brand control. It is also the only option fully verifiable from this environment.
-2. Put the truck behind a `TruckSource` interface (`createProceduralTruck()` and `loadGltfTruck(url, mapping)`). A licensed GLB (M2, M3, or M4) can then replace it later without touching the choreography.
-3. Use **M1 only as a local test fixture**, to exercise GLTFLoader, wheel-node mapping, and material overrides. Never ship its original texture.
+1. ✅ **Ship M0 (procedural truck).** Done in M1–M3. It carries zero licence risk, adds no download weight, and keeps full brand control.
+2. ✅ **Put the truck behind one interface.** Done in M5: `createTruck()` in `src/webgl/truck/truck-source.js` takes either the procedural truck or `loadGltfTruck({ url, mapping })`. A licensed GLB (M2, M3 or M4) can replace it by changing `src/webgl/truck/hero-truck.js`, without touching the choreography.
+3. ✅ **Use M1 only as a test fixture.** Done in M5: committed without its logo texture in `tests/fixtures/`, credited, and checked never to reach the production build.
 4. To verify M2, M3, or M4 first-hand, choose one:
    - **(a)** allow `kenney.nl`, `itch.io`, `opengameart.org`, `sketchfab.com`, and `poly.pizza` in the environment's network settings, or
    - **(b)** the owner downloads the file and commits it to `assets-src/` along with the licence text or a screenshot of the licence panel.

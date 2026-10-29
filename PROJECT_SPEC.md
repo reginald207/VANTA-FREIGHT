@@ -208,7 +208,7 @@ Conventions: **Cam** means camera move. **3D** means scene state. **DOM** means 
 - **DOM:** The final CTA, "Request a quote (demo)", is followed by the footer with the fictional-brand notice.
 - **RM:** Static CTA block.
 
-**Total scroll length:** about 850 vh on desktop and about 600 vh on mobile. Every pinned section has a keyboard-accessible "Skip intro sequence" link at the top of the page.
+**Total scroll length:** about 850 vh on desktop and about 600 vh on mobile. A keyboard-accessible "Skip the film" link (the second Tab stop) jumps to the final chapter.
 
 ### Secondary-page motion (lighter)
 - **Services:** Section reveals (opacity and y), and SVG route lines that draw on enter. Service detail pages share one hero template with an SVG route diagram.
@@ -277,7 +277,7 @@ Conventions: **Cam** means camera move. **3D** means scene state. **DOM** means 
 |---|---|---|---|
 | R1 | Cloud container is ephemeral. | Low: unpushed work is lost when the container is reclaimed. | Push to `reginald207/vanta-freight` at the end of each working step (push access confirmed 2026-10-28). |
 | R2 | **Asset hosts are blocked** by the environment network policy (sketchfab.com, poly.pizza, kenney.nl, opengameart.org, quaternius.com, polyhaven.com, gsap.com, threejs.org, jsdelivr, unpkg). | High: model licences cannot be verified first-hand, and models cannot be downloaded into the container. | Either allow those domains in the environment network settings, or the owner downloads chosen files and commits them with licence screenshots or texts. The procedural truck path (M1) does not depend on this. |
-| R3 | No truly suitable *semi-truck* model with a verified permissive licence was confirmed. | Medium | Build the hero truck procedurally first (zero licence risk), and swap to a licensed GLB later behind the same interface. |
+| R3 | No truly suitable *semi-truck* model with a verified permissive licence was confirmed. | Medium | **Mitigated.** The hero truck is procedural, which carries zero licence risk. Since M5, a tested glTF pipeline (`src/webgl/truck/gltf-truck.js`, `scripts/optimize-model.mjs`) can swap in a licensed model behind the same interface once one is verified. |
 | R4 | The full GSAP Standard No-Charge License text was not read first-hand. | Low–Medium | The owner (or a session with gsap.com allowed) reads https://gsap.com/standard-license before launch and records the result in the manifest. |
 | R5 | Scroll-scrubbed WebGL performance on low-end Android. | Medium | Quality tiers, adaptive DPR, a shorter mobile pin, and a hard Tier 1 fallback. |
 | R6 | iOS Safari specifics: address-bar resize causing ScrollTrigger refresh jumps, and WebGL memory limits. | Medium | Use `ScrollTrigger.config({ ignoreMobileResize: true })`, `svh`/`lvh` units, and texture caps. Test on a real device. |
