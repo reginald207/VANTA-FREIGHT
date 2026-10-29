@@ -1,5 +1,6 @@
 // Renders the static posters (Tier 0/1 fallbacks) from the live scenes: the
-// home hero, and one image per vehicle class for the fleet turntable.
+// home hero, and one image per vehicle class for the fleet turntable. Then
+// composes the 1200x630 social card (scripts/og-card.html) over the hero.
 // Starts a Vite dev server, opens the home page in capture mode with
 // Playwright, and encodes WebP + JPEG with the browser's own canvas encoder.
 //
@@ -53,6 +54,12 @@ try {
     console.log(`✓ ${name}: ${size}`);
     await page.close();
   }
+  // Social card: screenshot the template once fonts and the new poster load.
+  const card = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+  await card.goto(`${base}scripts/og-card.html`, { waitUntil: 'networkidle' });
+  await card.evaluate(() => document.fonts.ready);
+  await card.locator('.card').screenshot({ path: resolve(root, 'public/og/vanta-freight.jpg'), type: 'jpeg', quality: 86 });
+  console.log('✓ og/vanta-freight.jpg: 1200×630');
 } finally {
   await browser.close();
   await server.close();

@@ -163,6 +163,16 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
 - Connect the GitHub repo to Vercel (free tier) **only with owner approval**. Use preview deployments first.
 - **Acceptance:** spec §9 in full.
 
+### M6 status (built 2026-10-29, awaiting owner review)
+See the acceptance table in `PROJECT_SPEC.md` §9.1: 8 of 10 items are met outright, item 6 is met with the live-3D caveat, and item 7 still needs a manual screen-reader pass.
+
+- **Security headers** (`vercel.json`, also served by `vite preview` so the whole suite runs under them): a strict CSP with no `unsafe-inline` or `unsafe-eval`. The one inline script is allowed by SHA-256 hash, and a test checks the hash against every built page. `form-action 'none'` means the browser itself refuses to submit any form. Also nosniff, `X-Frame-Options: DENY` plus `frame-ancestors 'none'`, a Referrer-Policy, COOP and a Permissions-Policy. A sweep of every page (live 3D film and fleet viewer, tracking, both form outcomes) found **0 CSP violations**.
+- **SEO and social** (`plugins/seo.js`): Open Graph and Twitter cards from each page's title and description, plus a 1200×630 social card composed from the self-rendered hero (`npm run posters`). With `SITE_URL` or Vercel's `VERCEL_PROJECT_PRODUCTION_URL`, it adds canonical links, absolute `og:url`/`og:image` and `sitemap.xml` (404 excluded). `robots.txt` is always generated.
+- **Accessibility audit:** axe-core (WCAG 2.2 A/AA tags) runs on every route and on the interactive states. Fixed along the way: departure statements used to dim to 45% opacity, which put their text below AA contrast. They now stay at full strength.
+- **Lighthouse budgets:** `npm run audit:lighthouse` takes the median of 3 runs per page and fails below Perf 90 / A11y 95 / Best practices 95 / SEO 95 (static tiers). It also reports live-3D scores.
+- **Cross-browser:** `VF_BROWSER=firefox|webkit npm run test:smoke` runs the suite on other engines. Firefox and WebKit could not be downloaded in the cloud container (host blocked), so they still need a run on a developer machine. Real iOS and Android devices are still owed.
+- **Deployment:** Vercel's Git integration already builds a preview for every branch and production from `main`. Nothing paid is used.
+
 ---
 
 ## Testing strategy summary

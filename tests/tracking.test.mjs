@@ -76,7 +76,8 @@ describe('simulate', () => {
     const { shipment } = simulate('VF-DEMO-0001');
     const home = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
     assert.match(home, new RegExp(`${Math.round(shipment.progress * 100)} percent`));
-    assert.match(home, new RegExp(`--value: ${shipment.progress}`));
+    const homeCss = readFileSync(new URL('../src/styles/pages/home.css', import.meta.url), 'utf8');
+    assert.match(homeCss, new RegExp(`--value: ${shipment.progress};`));
     shipment.events.slice(-3).forEach((event) => {
       assert.ok(home.includes(event.time), `home shows ${event.time}`);
       assert.ok(home.includes(event.label), `home shows "${event.label}"`);

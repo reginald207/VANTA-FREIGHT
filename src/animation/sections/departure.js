@@ -9,10 +9,10 @@ export function createDepartureFilm() {
   });
 
   timeline.from('.departure .eyebrow, .departure__title', { opacity: 0, y: 32, stagger: 0.15, duration: 0.6 });
+  // Each statement arrives from hidden and then stays at full strength:
+  // dimming earlier ones would drop their text below AA contrast.
   statements.forEach((statement, index) => {
-    const at = 0.8 + index * 1.2;
-    timeline.fromTo(statement, { opacity: 0.12, x: -28 }, { opacity: 1, x: 0, duration: 0.8 }, at);
-    if (index > 0) timeline.to(statements[index - 1], { opacity: 0.45, duration: 0.6 }, at);
+    timeline.fromTo(statement, { opacity: 0, x: -28 }, { opacity: 1, x: 0, duration: 0.8 }, 0.8 + index * 1.2);
   });
   timeline.to({}, { duration: 0.6 });
   return timeline;
