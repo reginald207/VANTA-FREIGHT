@@ -149,6 +149,9 @@ export function createFloor(footprint) {
     setTruckX(value) {
       material.uniforms.uTruckX.value = value;
     },
+    setFootprint({ minX, maxX, halfWidth, frontX }) {
+      material.uniforms.uFootprint.value.set(minX, maxX, halfWidth, frontX);
+    },
   };
 }
 

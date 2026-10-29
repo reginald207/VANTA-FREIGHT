@@ -3,20 +3,58 @@
   <head>
     <!-- @include head.html -->
     <title>Services · VANTA FREIGHT</title>
-    <meta name="description" content="Linehaul, expedited, temperature-controlled and project cargo, each with its own detail page." />
+    <meta
+      name="description"
+      content="Linehaul, expedited, temperature-controlled and project cargo on the fictional VANTA FREIGHT network."
+    />
     <meta name="vf-page" content="services" />
-    <script type="module" src="/src/pages/base.js"></script>
+    <script type="module" src="/src/pages/content.js"></script>
   </head>
   <body>
     <!-- @include skip-link.html -->
     <!-- @include header.html -->
-    <main id="main" tabindex="-1" class="page">
-      <p class="eyebrow eyebrow--lime">VANTA FREIGHT</p>
-      <h1>Services</h1>
-      <p class="page__lede">Linehaul, expedited, temperature-controlled and project cargo, each with its own detail page.</p>
-      <p class="page__status">Service pages arrive in milestone M3.</p>
-      <p>The services shown here will describe a fictional carrier. They are not offers from a real company.</p>
-      <p><a class="btn btn--ghost" href="/">Back to the film</a></p>
+    <main id="main" tabindex="-1" class="content">
+      <header class="content-hero">
+        <p class="eyebrow eyebrow--lime">Services</p>
+        <h1>Four ways to move it.</h1>
+        <p class="content-hero__lede">
+          Every service runs on the same fictional network, the same fleet and the same honest, simulated tracking.
+        </p>
+      </header>
+
+      <section class="content-section" aria-labelledby="services-title">
+        <h2 id="services-title" class="visually-hidden">All services</h2>
+        <!-- @render services-index -->
+      </section>
+
+      <section class="content-section" aria-labelledby="principles-title">
+        <h2 id="principles-title">How every run works</h2>
+        <ul class="principles" role="list">
+          <li class="principles__item" data-reveal>
+            <h3>One plan per load</h3>
+            <p>Each load gets a plan before it moves: lane, docks, vehicle and timing.</p>
+          </li>
+          <li class="principles__item" data-reveal>
+            <h3>One dispatcher</h3>
+            <p>The same person follows the load from pickup to proof of delivery.</p>
+          </li>
+          <li class="principles__item" data-reveal>
+            <h3>Tracking that says what it is</h3>
+            <p>On this site, tracking is a simulation that runs in your browser, and it says so.</p>
+          </li>
+        </ul>
+      </section>
+
+      <section class="cta-band" aria-labelledby="services-cta-title">
+        <h2 id="services-cta-title">Have a load in mind?</h2>
+        <p>The quote form is a demo. It checks what you type and sends nothing.</p>
+        <a class="btn btn--primary" href="/contact/">Request a quote <span class="btn__tag">Demo</span></a>
+      </section>
+
+      <p class="content-disclaimer" role="note">
+        VANTA FREIGHT is a fictional company. These services describe how a carrier like it could work. They are not
+        offers.
+      </p>
     </main>
     <!-- @include footer.html -->
   </body>

@@ -1,0 +1,550 @@
+/* Content pages: services, service detail, fleet, about, 404. */
+
+.content {
+  position: relative;
+  z-index: var(--vf-z-content);
+  max-width: var(--vf-max);
+  margin-inline: auto;
+  padding: calc(var(--vf-space-xl) + 2rem) var(--vf-gutter) var(--vf-space-xl);
+  display: grid;
+  gap: var(--vf-space-xl);
+}
+
+.content:focus {
+  outline: none;
+}
+
+.content--center {
+  min-height: 80svh;
+  align-content: center;
+  gap: var(--vf-space-l);
+}
+
+/* Hero */
+.content-hero {
+  display: grid;
+  gap: var(--vf-space-s);
+  max-width: 52rem;
+}
+
+.content-hero h1 {
+  font-size: var(--vf-step-4);
+  text-transform: uppercase;
+}
+
+.content-hero__lede {
+  font-size: var(--vf-step-1);
+  line-height: 1.45;
+  max-width: 44ch;
+}
+
+.content-hero__summary {
+  color: var(--vf-steel);
+  max-width: 56ch;
+}
+
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vf-steel);
+}
+
+.breadcrumb li + li::before {
+  content: '/';
+  margin-right: 0.5rem;
+  color: var(--vf-line);
+}
+
+.breadcrumb a {
+  color: var(--vf-ice);
+}
+
+.breadcrumb a:hover {
+  color: var(--vf-lime);
+}
+
+/* Sections */
+.content-section {
+  display: grid;
+  gap: var(--vf-space-m);
+  align-content: start;
+}
+
+.content-section h2 {
+  font-size: var(--vf-step-3);
+  text-transform: uppercase;
+}
+
+.content-section__copy {
+  display: grid;
+  gap: var(--vf-space-s);
+  align-content: start;
+}
+
+.content-section__copy h2 {
+  font-size: var(--vf-step-2);
+}
+
+@media (min-width: 52rem) {
+  .content-section--split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--vf-space-l);
+    align-items: start;
+  }
+}
+
+.content-note,
+.content-disclaimer {
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  color: var(--vf-steel);
+}
+
+.content-disclaimer {
+  padding-top: var(--vf-space-s);
+  border-top: 1px solid var(--vf-line);
+  max-width: 80ch;
+}
+
+/* Service cards */
+.service-grid {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  background: var(--vf-line);
+  border: 1px solid var(--vf-line);
+}
+
+.service-card {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+  height: 100%;
+  min-height: 15rem;
+  padding: 1.5rem;
+  background: var(--vf-obsidian);
+  color: var(--vf-ice);
+  text-decoration: none;
+  transition: background-color var(--vf-dur-fast) linear;
+}
+
+.service-card:hover,
+.service-card:focus-visible {
+  background: var(--vf-carbon);
+}
+
+.service-card__index {
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  color: var(--vf-lime);
+}
+
+.service-grid .service-card__title {
+  /* Sized for the longest name ("Temperature-controlled") in a 4-up grid */
+  font-size: clamp(1.35rem, 1rem + 0.9vw, 1.9rem);
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.service-card__tagline {
+  font-size: var(--vf-step-0);
+}
+
+.service-card__route {
+  overflow-wrap: anywhere;
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  color: var(--vf-steel);
+}
+
+.service-card__more {
+  align-self: end;
+  margin-top: auto;
+  font-size: var(--vf-step--1);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vf-lime);
+}
+
+.service-card__more::after {
+  content: ' →';
+}
+
+.service-grid--compact .service-card {
+  min-height: 0;
+}
+
+.service-grid.service-grid--compact .service-card__title {
+  font-size: var(--vf-step-1);
+}
+
+/* Facts (definition lists) */
+.facts {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--vf-line);
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.6fr) 1fr;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--vf-line);
+}
+
+.facts dt {
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vf-steel);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+/* Route map */
+.route-figure {
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--vf-line);
+  background: var(--vf-carbon);
+}
+
+.network-map {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.network-map__hub text {
+  font-family: var(--vf-font-mono);
+  font-size: 3.2px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--vf-ice);
+}
+
+.route-map__faint path {
+  fill: none;
+  stroke: var(--vf-steel);
+  stroke-opacity: 0.3;
+  stroke-width: 0.4;
+}
+
+.route-map__leg {
+  fill: none;
+  stroke: var(--vf-lime);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.route-map__stop circle {
+  fill: var(--vf-lime);
+}
+
+.route-map__off circle {
+  fill: var(--vf-steel);
+  opacity: 0.5;
+}
+
+/* Checklists, steps, principles */
+.checklist {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.checklist li {
+  position: relative;
+  padding-left: 1.6rem;
+}
+
+.checklist li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.75rem;
+  height: 0.4rem;
+  border-left: 2px solid var(--vf-lime);
+  border-bottom: 2px solid var(--vf-lime);
+  transform: rotate(-45deg);
+}
+
+.checklist--plain li::before {
+  width: 0.45rem;
+  height: 2px;
+  border: 0;
+  background: var(--vf-steel);
+  transform: none;
+  top: 0.75em;
+}
+
+.steps,
+.principles {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  background: var(--vf-line);
+  border: 1px solid var(--vf-line);
+}
+
+.steps__item,
+.principles__item {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding: 1.4rem;
+  background: var(--vf-obsidian);
+}
+
+.steps__index {
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  color: var(--vf-lime);
+}
+
+.steps__title,
+.principles__item h3 {
+  font-size: var(--vf-step-1);
+  text-transform: uppercase;
+}
+
+.steps__item p,
+.principles__item p {
+  color: var(--vf-steel);
+  font-size: var(--vf-step--1);
+}
+
+/* Call to action band */
+.cta-band {
+  display: grid;
+  gap: var(--vf-space-s);
+  justify-items: start;
+  padding: var(--vf-space-l);
+  border: 1px solid var(--vf-lime);
+  background: var(--vf-carbon);
+}
+
+.cta-band h2 {
+  font-size: var(--vf-step-2);
+  text-transform: uppercase;
+}
+
+/* Credits table */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.credits-table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: var(--vf-step--1);
+}
+
+.credits-table th,
+.credits-table td {
+  padding: 0.8rem 1rem 0.8rem 0;
+  border-bottom: 1px solid var(--vf-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.credits-table thead th {
+  font-family: var(--vf-font-mono);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vf-steel);
+}
+
+.credits-table tbody th {
+  font-weight: 700;
+}
+
+.credits-table a {
+  color: var(--vf-lime);
+}
+
+/* 404 links */
+.link-list {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0;
+}
+
+.link-list a {
+  display: inline-block;
+  padding: 0.4rem 0;
+  font-size: var(--vf-step-1);
+  color: var(--vf-ice);
+}
+
+.link-list a:hover {
+  color: var(--vf-lime);
+}
+
+/* Fleet turntable */
+.turntable {
+  display: grid;
+  gap: var(--vf-space-s);
+}
+
+.turntable__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.turntable__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--vf-line);
+  background: var(--vf-obsidian);
+  font-weight: 700;
+  font-stretch: 85%;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: var(--vf-step--1);
+  cursor: pointer;
+}
+
+.turntable__tab:hover {
+  border-color: var(--vf-steel);
+}
+
+.turntable__tab[aria-pressed='true'] {
+  border-color: var(--vf-lime);
+  background: var(--vf-carbon);
+}
+
+.turntable__code {
+  font-family: var(--vf-font-mono);
+  font-weight: 500;
+  color: var(--vf-lime);
+}
+
+.turntable__viewport {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--vf-line);
+  background: var(--vf-obsidian);
+  touch-action: pan-y;
+}
+
+.turntable__viewport.is-live {
+  cursor: grab;
+}
+
+.turntable__viewport.is-live:active {
+  cursor: grabbing;
+}
+
+.turntable__poster,
+.turntable__poster img,
+.turntable__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.turntable__viewport.is-live .turntable__poster {
+  visibility: hidden;
+}
+
+.turntable__hint {
+  font-family: var(--vf-font-mono);
+  font-size: var(--vf-step--1);
+  color: var(--vf-steel);
+}
+
+/* Keeps its space while the viewer is a poster, so nothing shifts later. */
+.turntable__hint.is-inactive {
+  visibility: hidden;
+}
+
+@media (max-width: 40rem) {
+  .turntable__viewport {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Fleet class cards */
+.fleet-grid {
+  display: grid;
+  gap: var(--vf-space-m);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+.fleet-card {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+  padding: 1.5rem;
+  border: 1px solid var(--vf-line);
+  background: var(--vf-carbon);
+}
+
+.fleet-card__code {
+  font-family: var(--vf-font-mono);
+  color: var(--vf-lime);
+}
+
+.fleet-card__name {
+  font-size: var(--vf-step-2);
+  text-transform: uppercase;
+}
+
+.fleet-card__use {
+  color: var(--vf-steel);
+  font-size: var(--vf-step--1);
+}
+
+/* Scroll reveals (see core/reveal.js); only active once JS is ready */
+[data-reveal] {
+  transition:
+    opacity var(--vf-dur-slow) var(--vf-ease-out),
+    transform var(--vf-dur-slow) var(--vf-ease-out);
+}
+
+.vf-reveal-ready [data-reveal]:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.vf-reveal-ready .route-map__leg {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.4s var(--vf-ease-in-out) 0.2s;
+}
+
+.vf-reveal-ready .route-figure:not(.is-visible) .route-map__leg {
+  stroke-dashoffset: 1;
+}
+
+.vf-reduced-motion [data-reveal] {
+  transition: none;
+}
+
+@media (max-width: 40rem) {
+  .service-card {
+    min-height: 0;
+  }
+}

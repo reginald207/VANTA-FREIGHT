@@ -12,9 +12,19 @@ import { gzipSync } from 'node:zlib';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
 import { HUBS, LANES } from '../src/data/network.js';
+import { SERVICES } from '../src/data/services.js';
 
 const root = resolve(import.meta.dirname, '..');
-const ROUTES = ['/', '/services/', '/fleet/', '/about/', '/tracking/', '/contact/', '/404.html'];
+const ROUTES = [
+  '/',
+  '/services/',
+  ...SERVICES.map(({ slug }) => `/services/${slug}/`),
+  '/fleet/',
+  '/about/',
+  '/tracking/',
+  '/contact/',
+  '/404.html',
+];
 
 let server;
 let browser;
@@ -82,6 +92,20 @@ describe('every route', () => {
       const { page, context } = await open(path, { context: { viewport: { width: 320, height: 640 } } });
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       assert.ok(overflow <= 0, `page overflows by ${overflow}px`);
+      await context.close();
+    });
+  }
+
+  for (const path of ROUTES) {
+    test(`${path} has a heading outline without skipped levels`, async () => {
+      const { page, context } = await open(path, { context: { javaScriptEnabled: false } });
+      const levels = await page.$$eval('main h1, main h2, main h3, main h4, main h5, main h6', (els) =>
+        els.map((el) => Number(el.tagName[1])),
+      );
+      assert.equal(levels[0], 1, 'starts with the h1');
+      levels.slice(1).forEach((level, index) => {
+        assert.ok(level <= levels[index] + 1, `h${levels[index]} is followed by h${level}`);
+      });
       await context.close();
     });
   }
@@ -288,22 +312,145 @@ describe('keyboard and navigation', () => {
   });
 });
 
-describe('bundle budgets', () => {
-  const assets = resolve(root, 'dist/assets');
-  const files = readdirSync(assets);
-  const gzipKb = (file) => gzipSync(readFileSync(resolve(assets, file))).length / 1024;
+// Gzipped size of every script a page loads, as a browser actually fetches it.
+async function loadedScriptKb(path, browserInstance) {
+  const context = await browserInstance.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await context.newPage();
+  const bodies = [];
+  page.on('response', async (response) => {
+    if (response.request().resourceType() !== 'script') return;
+    bodies.push(response.body().then((body) => gzipSync(body).length).catch(() => 0));
+  });
+  await page.goto(base + path, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(500);
+  const sizes = await Promise.all(bodies);
+  await context.close();
+  return sizes.reduce((sum, size) => sum + size, 0) / 1024;
+}
 
-  test('home entry stays under 60 KB gzip and excludes three.js', () => {
-    const entry = files.find((file) => /^home-.*\.js$/.test(file));
-    assert.ok(entry, 'home entry chunk exists');
-    assert.ok(gzipKb(entry) <= 60, `home entry is ${gzipKb(entry).toFixed(1)} KB`);
-    assert.ok(!readFileSync(resolve(assets, entry), 'utf8').includes('WebGLRenderer'));
+describe('bundle budgets (gzipped JS actually loaded)', () => {
+  let noGpu;
+  before(async () => {
+    noGpu = await chromium.launch({ args: ['--disable-3d-apis'] });
+  });
+  after(async () => {
+    await noGpu?.close();
   });
 
-  test('lazy 3D chunks stay under 220 KB gzip', () => {
-    const chunks = files.filter((file) => /^(home-scene|procedural-truck)-.*\.js$/.test(file));
-    const total = chunks.reduce((sum, file) => sum + gzipKb(file), 0);
-    assert.ok(chunks.length >= 1);
-    assert.ok(total <= 220, `3D chunks total ${total.toFixed(1)} KB`);
+  test('home, without the 3D stage, stays under 60 KB', async () => {
+    const kb = await loadedScriptKb('/', noGpu);
+    assert.ok(kb <= 60, `home loads ${kb.toFixed(1)} KB`);
+  });
+
+  for (const path of ROUTES.filter((route) => route !== '/')) {
+    test(`${path} stays under 40 KB`, async () => {
+      const kb = await loadedScriptKb(path, noGpu);
+      assert.ok(kb <= 40, `${path} loads ${kb.toFixed(1)} KB`);
+    });
+  }
+
+  test('the home 3D stage adds at most 220 KB', async () => {
+    const [withStage, without] = await Promise.all([loadedScriptKb('/?tier=2', browser), loadedScriptKb('/', noGpu)]);
+    assert.ok(withStage - without <= 220, `3D adds ${(withStage - without).toFixed(1)} KB`);
+  });
+});
+
+describe('content and honesty', () => {
+  const dist = resolve(root, 'dist');
+  const htmlFiles = (dir) =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+      entry.isDirectory()
+        ? htmlFiles(resolve(dir, entry.name))
+        : entry.name.endsWith('.html')
+          ? [resolve(dir, entry.name)]
+          : [],
+    );
+
+  test('no page makes claims a fictional company cannot back up', () => {
+    const banned = /\b(ISO ?\d{3,}|certified|award[- ]winning|guaranteed?|trusted by|industry[- ]leading|market[- ]leading|#1|number one|years of experience)\b/i;
+    for (const file of htmlFiles(dist)) {
+      const text = readFileSync(file, 'utf8')
+        .replace(/<script[\s\S]*?<\/script>/g, '')
+        .replace(/<[^>]+>/g, ' ');
+      const match = text.match(banned);
+      assert.equal(match, null, `${file.replace(dist, '')} says "${match?.[0]}"`);
+    }
+  });
+
+  test('every page carries the fictional-company notice', () => {
+    for (const file of htmlFiles(dist)) {
+      assert.match(readFileSync(file, 'utf8'), /VANTA FREIGHT is a fictional company/, file.replace(dist, ''));
+    }
+  });
+
+  test('every service has a built page with its own title', () => {
+    for (const service of SERVICES) {
+      const html = readFileSync(resolve(dist, 'services', service.slug, 'index.html'), 'utf8');
+      assert.match(html, new RegExp(`<title>${service.name} · Services`));
+      assert.match(html, /class="route-map__leg"/);
+    }
+  });
+
+  test('every third-party credit on /about/ is listed in ASSET_MANIFEST.md', async () => {
+    const { CREDITS } = await import('../src/data/credits.js');
+    const manifest = readFileSync(resolve(root, 'ASSET_MANIFEST.md'), 'utf8').toLowerCase();
+    const about = readFileSync(resolve(dist, 'about/index.html'), 'utf8');
+    CREDITS.forEach((credit) => {
+      assert.ok(about.includes(credit.name.replace(/"/g, '&quot;')), `${credit.name} on /about/`);
+      if (credit.manifest) assert.ok(manifest.includes(credit.manifest), `${credit.manifest} in the manifest`);
+    });
+  });
+});
+
+describe('fleet viewer', () => {
+  test('without WebGL the class buttons swap the poster', async () => {
+    const noGpu = await chromium.launch({ args: ['--disable-3d-apis'] });
+    const { page, context, errors } = await open('/fleet/', { browserInstance: noGpu });
+    await stageSettled(page, 'poster');
+    await page.click('[data-variant="rigid"]');
+    assert.equal(await page.getAttribute('[data-variant="rigid"]', 'aria-pressed'), 'true');
+    assert.equal(await page.getAttribute('[data-variant="semi"]', 'aria-pressed'), 'false');
+    assert.match(await page.getAttribute('.turntable__poster img', 'src'), /fleet-rigid\.jpg$/);
+    assert.match(await page.getAttribute('.turntable__poster img', 'alt'), /VF-02/);
+    assert.equal(await page.locator('.turntable__viewport[role="slider"]').count(), 0);
+    assert.ok(!(await page.locator('.turntable__hint').isVisible()), 'no drag hint without the 3D viewer');
+    assert.deepEqual(errors, []);
+    await context.close();
+    await noGpu.close();
+  });
+
+  test('live, the viewer is a keyboard slider and switches classes', async () => {
+    const { page, context, errors } = await open('/fleet/?tier=2');
+    await stageSettled(page, 'live');
+    const slider = page.locator('.turntable__viewport');
+    assert.equal(await slider.getAttribute('role'), 'slider');
+    await slider.focus();
+    const before = Number(await slider.getAttribute('aria-valuenow'));
+    await page.keyboard.press('ArrowRight');
+    const after = Number(await slider.getAttribute('aria-valuenow'));
+    assert.equal((after - before + 360) % 360, 15);
+    assert.match(await slider.getAttribute('aria-valuetext'), /degrees/);
+    // Focus stopped the auto-rotation: the value holds still.
+    await page.waitForTimeout(1500);
+    await page.keyboard.press('ArrowLeft');
+    assert.equal(Number(await slider.getAttribute('aria-valuenow')), before);
+    await page.click('[data-variant="tractor"]');
+    assert.match(await slider.getAttribute('aria-label'), /VF-03/);
+    assert.ok(await page.locator('.turntable__hint').isVisible());
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+});
+
+describe('content pages without motion', () => {
+  test('reveal items are visible without JavaScript and with reduced motion', async () => {
+    for (const options of [{ javaScriptEnabled: false }, { reducedMotion: 'reduce' }]) {
+      const { page, context } = await open('/services/linehaul/', { context: options });
+      const hidden = await page.$$eval('[data-reveal]', (els) =>
+        els.filter((el) => getComputedStyle(el).opacity !== '1').length,
+      );
+      assert.equal(hidden, 0, JSON.stringify(options));
+      await context.close();
+    }
   });
 });

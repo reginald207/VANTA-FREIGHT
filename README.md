@@ -10,7 +10,7 @@ A cinematic, multipage website for a **fictional** freight company: a design and
 
 ## Status
 
-Milestones **M1** (foundation and hero) and **M2** (the full home film) are built. The home page runs all eight storyboard scenes: ignition, night yard, departure, the network, cargo x-ray, fleet line-up, the tracking preview and the arrival. The rest of the site is still placeholder pages.
+Milestones **M1** (foundation and hero), **M2** (the full home film) and **M3** (content pages) are built. The home page runs all eight storyboard scenes. Services, the four service pages, Fleet (with a 3D viewer), About (with credits) and 404 are complete. Tracking and Contact are placeholders until M4.
 
 ## Requirements
 
@@ -65,10 +65,11 @@ The posters in `public/posters/` are rendered from the scene itself (`npm run po
 ```
 index.html, services/ fleet/ about/ tracking/ contact/ 404.html   one HTML file per route
 partials/            header, footer and head, included at build time
-plugins/             html-partials.js (tiny Vite plugin, no dependency)
+plugins/             html-partials.js (includes and @render), preload-fonts.js
 public/              favicon, posters
 src/core/            capability tiers, motion preference
-src/data/            fictional network data and its static SVG renderer
+src/data/            fictional network, services, fleet and credits data, plus the
+                     build-time renderers for the data-driven pages
 src/animation/       GSAP setup and section timelines
 src/webgl/           stage, procedural truck, floor and lights, camera rig
 src/pages/           page entry points

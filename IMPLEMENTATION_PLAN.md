@@ -118,6 +118,22 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
 - Cross-document View Transitions (progressive).
 - **Acceptance:** all routes build; nav complete; secondary-page JS ≤ 40 KB gzip each; keyboard and screen reader smoke tests pass.
 
+### M3 status (built 2026-10-29, awaiting owner review) ✅
+- [x] All 11 routes build: home, services, 4 service pages, fleet, about, tracking (stub), contact (stub), 404.
+- [x] Nav complete, with `aria-current` on the section (service pages mark Services).
+- [x] Secondary-page JS ≤ 40 KB gzip. Initial JS measured from the build: **1.3 KB** on services, service pages, about and 404; **4.4 KB** on fleet (its 3D viewer loads lazily on capable devices). The smoke suite measures what each page actually loads.
+- [x] Keyboard: skip links, nav, class buttons, and the fleet viewer as an ARIA slider (arrow keys and Page Up/Down).
+- [x] Screen-reader smoke: automated checks for a heading outline with no skipped levels on every page, landmark structure, accessible names on the route maps (title + desc) and the slider. A manual VoiceOver/NVDA pass is still owed (spec §9.7).
+- [x] Lighthouse lab (mobile, container): Services, service pages and About score 100/100/100/100. Fleet static 99/100/100/100; Fleet with 3D 67 (same software-WebGL caveat as Home, R11). 404 scores SEO 63 by design, because it is `noindex`.
+
+### M3 implementation notes
+- **Data-driven pages:** each service page is a 15-line HTML stub; `<!-- @render service-page slug -->` fills it at build time from `src/data/services.js`. `vite.config.js` derives the inputs from the same data. Fleet cards (`src/data/fleet.js`, measured from the 3D models) and credits (`src/data/credits.js`, checked against this manifest) work the same way.
+- **No GSAP on content pages.** Reveals use IntersectionObserver plus CSS (`src/core/reveal.js`), and content is only hidden once that module runs, so it shows without JS and never animates with reduced motion.
+- **Fleet turntable:** reuses the stage and procedural trucks; it pauses rendering off-screen. It auto-rotates for at most 5 s (WCAG 2.2.2) and stops for good on focus, hover or input. Posters per class come from `npm run posters`.
+- **Page transitions:** cross-document View Transitions in CSS only (header stays, content cross-fades), off with reduced motion.
+- **Fonts:** a small build plugin preloads the hashed Latin Archivo file. That removed font-swap layout shift: CLS is 0 on every page measured (it was 0.12 on Fleet and 0.027 on Home).
+- **Honesty check:** the smoke suite scans every built page for claims a fictional company can't make (certifications, awards, "guaranteed", "trusted by", "#1"…) and for the fictional-company notice.
+
 ## Phase 5 — M4: Simulated tracking and demo forms
 - `tracking/simulator.js`: a pure, deterministic function `simulate(id) → { status, hubs[], events[], etaLabel }`, seeded PRNG, fictional hubs only. Unit-tested with Vitest (dev dependency added only in this phase) or `node:test` (zero dependencies, preferred).
 - Tracking UI: SIMULATION badge, `aria-live` results, SVG route draw.
