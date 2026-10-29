@@ -18,17 +18,15 @@ export function createDepartureFilm() {
   return timeline;
 }
 
-// Tier 1 with motion allowed: gentle one-time reveals as sections enter.
+// Tier 1 with motion allowed: gentle one-time reveals as the statements enter.
 export function createStaticReveals() {
-  gsap.utils
-    .toArray('.departure .eyebrow, .departure__title, .departure .statement, .after-film__inner > *')
-    .forEach((element) => {
-      gsap.from(element, {
-        opacity: 0,
-        y: 24,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: element, start: 'top 88%', once: true },
-      });
+  gsap.utils.toArray('.departure .eyebrow, .departure__title, .departure .statement').forEach((element) => {
+    gsap.from(element, {
+      opacity: 0,
+      y: 24,
+      duration: 0.8,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: element, start: 'top 88%', once: true },
     });
+  });
 }

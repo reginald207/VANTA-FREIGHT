@@ -14,7 +14,7 @@ import { gsap } from '../animation/gsap-setup.js';
 import { FOG_DENSITY, PALETTE } from './palette.js';
 import { createAdaptiveResolution } from './quality.js';
 
-export function createStage({ canvas, onContextLost, adaptive = true, maxDpr = 2 }) {
+export function createStage({ canvas, onContextLost, onStruggle, adaptive = true, maxDpr = 2 }) {
   const renderer = new WebGLRenderer({
     canvas,
     antialias: true,
@@ -35,13 +35,18 @@ export function createStage({ canvas, onContextLost, adaptive = true, maxDpr = 2
   scene.environmentIntensity = 0.6;
   pmrem.dispose();
 
-  const camera = new PerspectiveCamera(35, 1, 0.1, 220);
-  const resolution = createAdaptiveResolution(renderer, { maxDpr });
+  // Far plane covers the top-down network view.
+  const camera = new PerspectiveCamera(35, 1, 0.1, 500);
+  const resolution = createAdaptiveResolution(renderer, { maxDpr, onStruggle });
 
   const updaters = new Set();
   const resizers = new Set();
   let active = true;
   let lost = false;
+  // While the canvas is fully transparent, keep updating but skip the draw.
+  let hidden = false;
+  // Real frame time for quality decisions (gsap's delta is lag-smoothed).
+  let lastFrame = 0;
 
   function resize() {
     const width = canvas.clientWidth || window.innerWidth;
@@ -58,9 +63,15 @@ export function createStage({ canvas, onContextLost, adaptive = true, maxDpr = 2
   }
 
   function tick(time, deltaMs) {
-    if (!active || lost || document.hidden) return;
+    if (!active || lost || document.hidden || hidden) {
+      lastFrame = 0;
+      if (hidden && active && !lost) updaters.forEach((fn) => fn(time, Math.min(deltaMs, 100) / 1000));
+      return;
+    }
     render(time, deltaMs);
-    if (adaptive) resolution.sample(deltaMs);
+    const now = performance.now();
+    if (adaptive && lastFrame) resolution.sample(now - lastFrame);
+    lastFrame = now;
   }
 
   const onLost = (event) => {
@@ -91,6 +102,9 @@ export function createStage({ canvas, onContextLost, adaptive = true, maxDpr = 2
     },
     setActive(value) {
       active = value;
+    },
+    setHidden(value) {
+      hidden = value;
     },
     render,
     compile: () => renderer.compileAsync(scene, camera),

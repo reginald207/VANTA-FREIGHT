@@ -13,6 +13,10 @@ import {
   Group,
   InstancedMesh,
   LatheGeometry,
+  LineBasicMaterial,
+  LineSegments,
+  BufferGeometry,
+  Float32BufferAttribute,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -33,15 +37,34 @@ import { PALETTE } from '../palette.js';
 const WHEEL_RADIUS = 0.52;
 const HALF_WIDTH = 1.27;
 
-// Wheel stations along the truck: x position and tyre width (duals are wider).
-const AXLES = [
-  { x: 2.2, width: 0.36 },
-  { x: -1.0, width: 0.62 },
-  { x: -2.35, width: 0.62 },
-  { x: -10.0, width: 0.62 },
-  { x: -11.3, width: 0.62 },
-  { x: -12.6, width: 0.62 },
-];
+const STEER = { x: 2.2, width: 0.36 };
+const dual = (x) => ({ x, width: 0.62 });
+
+// Fleet classes. Each lists its wheel stations (x and tyre width), its cargo
+// box (if any), where the livery sits, and the tractor's rear-end details.
+const VARIANTS = {
+  semi: {
+    axles: [STEER, dual(-1.0), dual(-2.35), dual(-10.0), dual(-11.3), dual(-12.6)],
+    box: { front: 0.1, rear: -13.5, trailer: true },
+    livery: { x: -6.75, width: 10.6 },
+    tractor: { chassisRear: -2.9, fender: [-2.95, -0.4], mudflap: -3.0, fifthWheel: true },
+    minX: -13.56,
+  },
+  rigid: {
+    axles: [STEER, dual(-3.6), dual(-4.9)],
+    box: { front: 0.55, rear: -6.6, trailer: false },
+    livery: { x: -3.0, width: 6.6 },
+    tractor: { chassisRear: -6.4, fender: [-5.5, -3.0], mudflap: -5.6, fifthWheel: false },
+    minX: -6.66,
+  },
+  tractor: {
+    axles: [STEER, dual(-1.0), dual(-2.35)],
+    box: null,
+    livery: null,
+    tractor: { chassisRear: -2.9, fender: [-2.95, -0.4], mudflap: -3.0, fifthWheel: true },
+    minX: -3.0,
+  },
+};
 
 function nonIndexed(geometry) {
   return geometry.index ? geometry.toNonIndexed() : geometry;
@@ -92,8 +115,9 @@ function createMaterials() {
       clearcoat: 0.8,
       clearcoatRoughness: 0.18,
     }),
-    trailer: new MeshStandardMaterial({ color: '#111412', metalness: 0.35, roughness: 0.5 }),
-    rib: new MeshStandardMaterial({ color: '#1d231f', metalness: 0.65, roughness: 0.32 }),
+    // Transparent so the trailer can fade to an x-ray (depth still written).
+    trailer: new MeshStandardMaterial({ color: '#111412', metalness: 0.35, roughness: 0.5, transparent: true }),
+    rib: new MeshStandardMaterial({ color: '#1d231f', metalness: 0.65, roughness: 0.32, transparent: true }),
     trim: new MeshStandardMaterial({ color: '#0a0c0b', metalness: 0.2, roughness: 0.8 }),
     glass: new MeshPhysicalMaterial({
       color: '#0a0f0d',
@@ -111,7 +135,7 @@ function createMaterials() {
   };
 }
 
-function buildTractor(parts) {
+function buildTractor(parts, { chassisRear, fender, mudflap, fifthWheel }) {
   // Cab side profile (x forward, y up), extruded across the width.
   parts.body.push(
     extrudeProfile(
@@ -169,11 +193,11 @@ function buildTractor(parts) {
   parts.lime.push(...mirrored(3.42, 3.44, 0.74, 0.765, 0.72, 1.12));
 
   // Chassis, side skirts, fenders, mudflaps, fifth wheel.
-  parts.trim.push(slab(-2.9, 3.1, 0.62, 1.0, -0.5, 0.5));
+  parts.trim.push(slab(chassisRear, 3.1, 0.62, 1.0, -0.5, 0.5));
   parts.body.push(...mirrored(-0.35, 1.62, 0.38, 1.0, 1.12, 1.22));
-  parts.trim.push(...mirrored(-2.95, -0.4, 1.08, 1.13, 0.62, 1.28));
-  parts.trim.push(...mirrored(-3.0, -2.97, 0.25, 1.0, 0.65, 1.25));
-  parts.steel.push(slab(-1.75, -0.6, 1.0, 1.1, -0.6, 0.6));
+  parts.trim.push(...mirrored(fender[0], fender[1], 1.08, 1.13, 0.62, 1.28));
+  parts.trim.push(...mirrored(mudflap, mudflap + 0.03, 0.25, 1.0, 0.65, 1.25));
+  if (fifthWheel) parts.steel.push(slab(-1.75, -0.6, 1.0, 1.1, -0.6, 0.6));
 
   // Exhaust stacks behind the cab.
   for (const z of [-1.05, 1.05]) {
@@ -183,9 +207,8 @@ function buildTractor(parts) {
   }
 }
 
-function buildTrailer(parts) {
-  const front = 0.1;
-  const rear = -13.5;
+// The cargo box: a semi-trailer, or the body of a rigid truck.
+function buildBox(parts, { front, rear, trailer }) {
   const length = front - rear;
 
   const box = new RoundedBoxGeometry(length, 2.75, HALF_WIDTH * 2, 2, 0.04);
@@ -202,21 +225,60 @@ function buildTrailer(parts) {
   parts.trim.push(...mirrored(rear - 0.05, front + 0.05, 1.26, 1.36, HALF_WIDTH - 0.03, HALF_WIDTH + 0.04));
   parts.lime.push(...mirrored(rear, front, 1.37, 1.395, HALF_WIDTH + 0.01, HALF_WIDTH + 0.035));
 
-  // Underframe, landing gear and aero skirts.
+  // Underframe; a semi-trailer also gets landing gear, aero skirts, mudflaps.
   parts.trim.push(slab(rear, front - 0.1, 1.05, 1.3, -0.55, 0.55));
-  parts.steel.push(...mirrored(-2.6, -2.45, 0.28, 1.05, 0.85, 0.95));
-  parts.steel.push(...mirrored(-2.7, -2.35, 0.22, 0.28, 0.8, 1.0));
-  parts.body.push(...mirrored(-9.6, -3.2, 0.45, 1.22, 1.2, 1.24));
-  parts.trim.push(...mirrored(-13.2, -13.17, 0.25, 1.05, 0.65, 1.25));
+  if (trailer) {
+    parts.steel.push(...mirrored(-2.6, -2.45, 0.28, 1.05, 0.85, 0.95));
+    parts.steel.push(...mirrored(-2.7, -2.35, 0.22, 0.28, 0.8, 1.0));
+    parts.body.push(...mirrored(-9.6, -3.2, 0.45, 1.22, 1.2, 1.24));
+    parts.trim.push(...mirrored(rear + 0.3, rear + 0.33, 0.25, 1.05, 0.65, 1.25));
+  }
 
   // Rear: door seam, tail lights, marker line, underride bar.
   parts.trim.push(slab(rear - 0.03, rear - 0.01, 1.35, 3.98, -0.01, 0.01));
   parts.tail.push(...mirrored(rear - 0.06, rear - 0.02, 0.85, 1.0, 0.8, 1.15));
   parts.lime.push(slab(rear - 0.06, rear - 0.03, 3.92, 3.95, -1.2, 1.2));
-  parts.steel.push(slab(-13.45, -13.3, 0.45, 0.6, -1.15, 1.15));
+  parts.steel.push(slab(rear + 0.05, rear + 0.2, 0.45, 0.6, -1.15, 1.15));
 }
 
-function createWheels(materials) {
+// Lime x-ray outline of the cargo box: four long edges plus a frame every
+// rib bay, so the see-through trailer still reads as a structure.
+function createXrayOutline({ front, rear }) {
+  const y0 = 1.3;
+  const y1 = 4.05;
+  const z = HALF_WIDTH + 0.01;
+  const corners = [
+    [y0, -z],
+    [y1, -z],
+    [y1, z],
+    [y0, z],
+  ];
+  const points = [];
+  corners.forEach(([y, cz]) => points.push(rear, y, cz, front, y, cz));
+  const bays = Math.round((front - rear) / 1.13);
+  for (let i = 0; i <= bays; i += 1) {
+    const x = rear + ((front - rear) * i) / bays;
+    corners.forEach(([y, cz], index) => {
+      const [ny, nz] = corners[(index + 1) % 4];
+      points.push(x, y, cz, x, ny, nz);
+    });
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new Float32BufferAttribute(points, 3));
+  const material = new LineBasicMaterial({
+    color: PALETTE.lime,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  const lines = new LineSegments(geometry, material);
+  lines.name = 'xray-outline';
+  lines.visible = false;
+  return lines;
+}
+
+function createWheels(materials, axles) {
   // Tyre: a lathe profile with rounded shoulders, unit width along Z.
   const profile = [
     [0.3, -0.5],
@@ -258,7 +320,7 @@ function createWheels(materials) {
   });
   const ringGeometry = mergeGeometries(rings);
 
-  const stations = AXLES.flatMap(({ x, width }) =>
+  const stations = axles.flatMap(({ x, width }) =>
     [-1, 1].map((side) => ({
       position: new Vector3(x, WHEEL_RADIUS, side * (HALF_WIDTH - width / 2 + 0.02)),
       scale: new Vector3(1, 1, width),
@@ -290,6 +352,13 @@ function createWheels(materials) {
   setDistance(0);
   meshes.forEach((mesh) => mesh.computeBoundingSphere());
   return { meshes, setDistance };
+}
+
+let liveryTexture = null;
+
+function getLiveryTexture() {
+  liveryTexture ??= createLiveryTexture();
+  return liveryTexture;
 }
 
 async function createLiveryTexture() {
@@ -332,53 +401,62 @@ async function createLiveryTexture() {
   return texture;
 }
 
-function createLivery(texture) {
+function createLivery(texture, { x, width }) {
   const material = new MeshBasicMaterial({
     map: texture,
     transparent: true,
     color: new Color(0.5, 0.5, 0.5),
     depthWrite: false,
   });
-  const geometry = new PlaneGeometry(10.6, (10.6 * 400) / 2048);
+  const geometry = new PlaneGeometry(width, (width * 400) / 2048);
   const right = new Mesh(geometry, material);
-  right.position.set(-6.75, 2.72, HALF_WIDTH + 0.03);
+  right.position.set(x, 2.72, HALF_WIDTH + 0.03);
   const left = new Mesh(geometry, material);
   left.rotation.y = Math.PI;
-  left.position.set(-6.75, 2.72, -HALF_WIDTH - 0.03);
-  return [right, left];
+  left.position.set(x, 2.72, -HALF_WIDTH - 0.03);
+  return { meshes: [right, left], material };
 }
 
 /**
+ * @param {{variant?: 'semi' | 'rigid' | 'tractor'}} [options]
  * @returns {Promise<import('./truck-source.js').Truck>}
  */
-export async function createProceduralTruck() {
+export async function createProceduralTruck({ variant = 'semi' } = {}) {
+  const spec = VARIANTS[variant];
+  if (!spec) throw new Error(`Unknown truck variant: ${variant}`);
   const materials = createMaterials();
   const parts = Object.fromEntries(Object.keys(materials).map((key) => [key, []]));
 
-  buildTractor(parts);
-  buildTrailer(parts);
+  buildTractor(parts, spec.tractor);
+  if (spec.box) buildBox(parts, spec.box);
 
   const group = new Group();
-  group.name = 'VF-01';
+  group.name = `VF-${variant}`;
 
   Object.entries(parts).forEach(([key, geometries]) => {
     if (!geometries.length) return;
     const mesh = new Mesh(mergeGeometries(geometries), materials[key]);
-    mesh.name = `vf01-${key}`;
+    mesh.name = `vf-${variant}-${key}`;
     group.add(mesh);
   });
 
-  const wheels = createWheels(materials);
+  const wheels = createWheels(materials, spec.axles);
   wheels.meshes.forEach((mesh) => group.add(mesh));
 
-  const livery = createLivery(await createLiveryTexture());
-  livery.forEach((mesh) => group.add(mesh));
+  let livery = null;
+  if (spec.livery) {
+    livery = createLivery(await getLiveryTexture(), spec.livery);
+    livery.meshes.forEach((mesh) => group.add(mesh));
+  }
+
+  const outline = spec.box ? createXrayOutline(spec.box) : null;
+  if (outline) group.add(outline);
 
   const headDim = PALETTE.ice.clone().multiplyScalar(0.12);
 
   return {
     group,
-    footprint: { minX: -13.56, maxX: 3.44, halfWidth: 1.3, frontX: 3.45 },
+    footprint: { minX: spec.minX, maxX: 3.44, halfWidth: 1.3, frontX: 3.45 },
     headlights: [new Vector3(3.45, 0.88, -0.92), new Vector3(3.45, 0.88, 0.92)],
     setDistance: wheels.setDistance,
     setHeadlights(value) {
@@ -386,6 +464,15 @@ export async function createProceduralTruck() {
     },
     setStrip(value) {
       materials.lime.color.copy(PALETTE.lime).multiplyScalar(value);
+    },
+    setXray(value) {
+      if (!outline) return;
+      const solid = 1 - 0.9 * value;
+      materials.trailer.opacity = solid;
+      materials.rib.opacity = solid;
+      if (livery) livery.material.opacity = solid;
+      outline.material.opacity = value;
+      outline.visible = value > 0.005;
     },
   };
 }

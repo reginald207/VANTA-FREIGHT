@@ -10,7 +10,7 @@ A cinematic, multipage website for a **fictional** freight company: a design and
 
 ## Status
 
-Milestone **M1: Foundation and Hero Vertical Slice** is complete. It covers the home page's Scenes 0–2 (ignition, night-yard hero, departure) with a real-time procedural truck, the quality-tier fallbacks, and placeholder pages for the rest of the site.
+Milestones **M1** (foundation and hero) and **M2** (the full home film) are built. The home page runs all eight storyboard scenes: ignition, night yard, departure, the network, cargo x-ray, fleet line-up, the tracking preview and the arrival. The rest of the site is still placeholder pages.
 
 ## Requirements
 
@@ -35,7 +35,11 @@ npm run preview      # serve the production build
 ```
 
 ```bash
-npm run test:smoke   # build, then run the Playwright smoke suite
+npm test             # unit tests (choreography, network data, adaptive resolution)
+```
+
+```bash
+npm run test:smoke   # build, then run unit tests and the Playwright smoke suite
 ```
 
 ```bash
@@ -49,7 +53,7 @@ npm run posters      # re-render the static hero posters from the live scene
 | Tier | When | What you get |
 |---|---|---|
 | 0 | JavaScript disabled | Full HTML content and the static poster |
-| 1 | Reduced motion, Save-Data, low memory or CPU, no WebGL2, 3D load over 3 s, WebGL context lost | Static poster and gentle reveals (none with reduced motion) |
+| 1 | Reduced motion (OS setting or the header toggle), Save-Data, low memory or CPU, no WebGL2, 3D load over 3 s, frames far too slow, WebGL context lost | Static poster, static network map and gentle reveals (none with reduced motion) |
 | 2 | Capable device | Live WebGL truck and the scroll-driven camera film |
 
 For QA on real devices, add `?tier=1` or `?tier=2` to the URL to force a tier. A forced Tier 2 allows 15 s for the 3D stage to load.
@@ -64,6 +68,7 @@ partials/            header, footer and head, included at build time
 plugins/             html-partials.js (tiny Vite plugin, no dependency)
 public/              favicon, posters
 src/core/            capability tiers, motion preference
+src/data/            fictional network data and its static SVG renderer
 src/animation/       GSAP setup and section timelines
 src/webgl/           stage, procedural truck, floor and lights, camera rig
 src/pages/           page entry points

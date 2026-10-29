@@ -1,6 +1,7 @@
 // Build-time HTML partials.
 //
 //   <!-- @include header.html -->   is replaced with partials/header.html
+//   <!-- @render network-map -->     is replaced with renderers['network-map']()
 //   <meta name="vf-page" content="services">   marks the current section, so
 //   any link carrying data-nav="services" receives aria-current="page".
 //
@@ -9,9 +10,10 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const INCLUDE = /<!--\s*@include\s+([\w./-]+)\s*-->/g;
+const RENDER = /<!--\s*@render\s+([\w-]+)\s*-->/g;
 const PAGE_META = /<meta\s+name="vf-page"\s+content="([\w-]+)"\s*\/?>/;
 
-export default function htmlPartials({ dir = 'partials' } = {}) {
+export default function htmlPartials({ dir = 'partials', renderers = {} } = {}) {
   let root = process.cwd();
 
   const expand = (html, depth = 0) => {
@@ -36,7 +38,10 @@ export default function htmlPartials({ dir = 'partials' } = {}) {
     transformIndexHtml: {
       order: 'pre',
       handler(html) {
-        let out = expand(html);
+        let out = expand(html).replace(RENDER, (_, name) => {
+          if (!renderers[name]) throw new Error(`html-partials: no renderer named "${name}"`);
+          return renderers[name]();
+        });
         const page = out.match(PAGE_META)?.[1];
         if (page) {
           out = out.replaceAll(`data-nav="${page}"`, `data-nav="${page}" aria-current="page"`);

@@ -12,9 +12,12 @@
         c.add('js');
         var reduce = false;
         try {
-          reduce = matchMedia('(prefers-reduced-motion: reduce)').matches ||
-            localStorage.getItem('vf-motion') === 'reduce';
-        } catch (e) {}
+          var stored = localStorage.getItem('vf-motion');
+          reduce = stored === 'reduce' ||
+            (stored !== 'allow' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+        } catch (e) {
+          reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        }
         c.add(reduce ? 'vf-reduced-motion' : 'vf-intro');
       })(document.documentElement);
     </script>

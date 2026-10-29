@@ -28,6 +28,8 @@ const floorFragment = /* glsl */ `
   uniform float uHeadlights;
   uniform float uStrip;
   uniform float uFogDensity;
+  uniform float uMap;     // 0-1: the network map grid
+  uniform float uTruckX;  // the truck's travel along +X (Scene 7)
   uniform vec3 uBg;
   uniform vec3 uLime;
   uniform vec3 uIce;
@@ -54,11 +56,16 @@ const floorFragment = /* glsl */ `
   void main() {
     vec2 p = vWorld.xz;
     float sx = p.x + uOffset; // road coordinate, scrolls as the truck drives
+    float dist = length(vWorld - cameraPosition);
     vec3 col = uBg * 1.35;
 
-    // Faint survey grid
+    // Faint survey grid, faded with distance to avoid shimmer from above
     float g = max(gridLine(sx, 2.0), gridLine(p.y, 2.0));
-    col += uSteel * g * 0.03;
+    col += uSteel * g * 0.03 * (1.0 - smoothstep(30.0, 80.0, dist));
+
+    // Map grid for the network scene
+    float m = max(gridLine(p.x, 10.0), gridLine(p.y, 10.0));
+    col += uSteel * m * 0.07 * uMap;
 
     // Lane edges (solid) and dashed dividers
     float az = abs(p.y);
@@ -67,6 +74,7 @@ const floorFragment = /* glsl */ `
     col += uIce * stripe(az, 5.7, 0.07) * dash * 0.14;
 
     // Contact shadow and lime under-glow around the truck footprint
+    p.x -= uTruckX;
     vec2 centre = vec2((uFootprint.x + uFootprint.y) * 0.5, 0.0);
     vec2 halfSize = vec2((uFootprint.y - uFootprint.x) * 0.5, uFootprint.z);
     float sd = sdBox(p - centre, halfSize);
@@ -87,7 +95,6 @@ const floorFragment = /* glsl */ `
     }
 
     // Exponential fog, matched to the scene's FogExp2 and clear colour
-    float dist = length(vWorld - cameraPosition);
     float fog = 1.0 - exp(-uFogDensity * uFogDensity * dist * dist);
     col = mix(col, uBg, fog);
 
@@ -106,6 +113,8 @@ export function createFloor(footprint) {
       uHeadlights: { value: 0 },
       uStrip: { value: 0 },
       uFogDensity: { value: FOG_DENSITY },
+      uMap: { value: 0 },
+      uTruckX: { value: 0 },
       uBg: { value: PALETTE.obsidian },
       uLime: { value: PALETTE.lime },
       uIce: { value: PALETTE.ice },
@@ -130,6 +139,15 @@ export function createFloor(footprint) {
     setLights(headlights, strip) {
       material.uniforms.uHeadlights.value = headlights;
       material.uniforms.uStrip.value = strip;
+    },
+    setFog(density) {
+      material.uniforms.uFogDensity.value = density;
+    },
+    setMap(value) {
+      material.uniforms.uMap.value = value;
+    },
+    setTruckX(value) {
+      material.uniforms.uTruckX.value = value;
     },
   };
 }

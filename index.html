@@ -11,8 +11,9 @@
     <script type="module" src="/src/pages/home.js"></script>
   </head>
   <body class="page-home">
+    <!-- @include skip-link.html -->
+    <a class="skip-link skip-link--film" href="#arrival">Skip the film</a>
     <!-- @include header.html -->
-    <a class="skip-link skip-link--film" href="#after-film">Skip the intro sequence</a>
     <div class="load-progress" aria-hidden="true"><span class="load-progress__bar"></span></div>
 
     <main id="main" tabindex="-1">
@@ -38,7 +39,7 @@
               <span class="hero__line">We move what</span>
               <span class="hero__line">moves the world.</span>
             </h1>
-            <p class="hero__lede" data-intro>
+            <p class="hero__lede">
               Long-haul, time-critical and temperature-controlled freight, told as an interactive film. VANTA FREIGHT
               is a fictional carrier. The truck is real-time 3D.
             </p>
@@ -54,8 +55,8 @@
           </a>
         </section>
 
-        <section class="departure" id="departure" aria-labelledby="departure-title">
-          <div class="departure__stage">
+        <section class="scene scene--departure departure" id="departure" data-scene="departure" aria-labelledby="departure-title">
+          <div class="scene__stage departure__stage">
             <p class="eyebrow eyebrow--lime">Chapter 02 · Departure</p>
             <h2 id="departure-title" class="departure__title">Three ways we run the road.</h2>
             <ol class="departure__list" role="list">
@@ -83,22 +84,144 @@
             </ol>
           </div>
         </section>
-      </div>
 
-      <section class="after-film" id="after-film" tabindex="-1" aria-labelledby="after-film-title">
-        <div class="after-film__inner">
-          <p class="eyebrow">Chapter 03 · The network</p>
-          <h2 id="after-film-title" class="after-film__title">The route map is being drawn.</h2>
-          <p>
-            The network, cargo and fleet chapters of this film are in production for the next milestone. Until then,
-            you can explore the rest of the site.
-          </p>
-          <div class="hero__actions">
-            <a class="btn btn--primary" href="/contact/">Request a quote <span class="btn__tag">Demo</span></a>
-            <a class="btn btn--ghost" href="/services/">Explore services</a>
+        <section class="scene scene--network" id="network" data-scene="network" aria-labelledby="network-title">
+          <div class="scene__stage">
+            <div class="scene__copy">
+              <p class="eyebrow eyebrow--lime" data-reveal>Chapter 03 · The network</p>
+              <h2 id="network-title" class="scene__title" data-reveal>Twelve hubs. One night shift.</h2>
+              <p class="scene__lede" data-reveal>
+                Lanes light up as the dispatch plan comes together, starting from the truck on the Northgate lane.
+              </p>
+              <dl class="stats" data-reveal>
+                <div class="stat"><dt>Hubs</dt><dd data-count="12">12</dd></div>
+                <div class="stat"><dt>Lanes</dt><dd data-count="18">18</dd></div>
+                <div class="stat"><dt>Trucks in view</dt><dd data-count="1">1</dd></div>
+              </dl>
+              <p class="stats__note" data-reveal>Illustrative network. Every hub is fictional and the map is not real geography.</p>
+            </div>
+            <figure class="network-figure">
+              <!-- @render network-map -->
+            </figure>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section class="scene scene--cargo" id="cargo" data-scene="cargo" aria-labelledby="cargo-title">
+          <div class="scene__stage">
+            <div class="scene__copy">
+              <p class="eyebrow eyebrow--lime" data-reveal>Chapter 04 · Cargo</p>
+              <h2 id="cargo-title" class="scene__title" data-reveal>Look inside the load.</h2>
+              <p class="scene__lede" data-reveal>Four kinds of freight, packed for the run and unloaded in order.</p>
+              <ol class="cargo-list" role="list">
+                <li class="cargo-item" data-cargo="0" data-reveal>
+                  <span class="cargo-item__chip cargo-item__chip--palletised" aria-hidden="true"></span>
+                  <span class="cargo-item__title">Palletised</span>
+                  <span class="cargo-item__copy">Standard pallets, strapped and stacked two rows deep.</span>
+                </li>
+                <li class="cargo-item" data-cargo="1" data-reveal>
+                  <span class="cargo-item__chip cargo-item__chip--temperature" aria-hidden="true"></span>
+                  <span class="cargo-item__title">Temperature-controlled</span>
+                  <span class="cargo-item__copy">Reefer units held at a set point from dock to dock.</span>
+                </li>
+                <li class="cargo-item" data-cargo="2" data-reveal>
+                  <span class="cargo-item__chip cargo-item__chip--oversized" aria-hidden="true"></span>
+                  <span class="cargo-item__title">Oversized</span>
+                  <span class="cargo-item__copy">One piece that takes the full width of the trailer.</span>
+                </li>
+                <li class="cargo-item" data-cargo="3" data-reveal>
+                  <span class="cargo-item__chip cargo-item__chip--time-critical" aria-hidden="true"></span>
+                  <span class="cargo-item__title">Time-critical</span>
+                  <span class="cargo-item__copy">Small, urgent consignments with their own lime tags.</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene scene--fleet" id="fleet" data-scene="fleet" aria-labelledby="fleet-title">
+          <div class="scene__stage">
+            <div class="scene__copy">
+              <p class="eyebrow eyebrow--lime" data-reveal>Chapter 05 · Fleet</p>
+              <h2 id="fleet-title" class="scene__title" data-reveal>Three classes. One standard.</h2>
+              <p class="scene__lede" data-reveal>
+                Every class shares the same cab, lighting and livery. The vehicles and their specifications are
+                fictional.
+              </p>
+              <ul class="fleet-list" role="list">
+                <li class="fleet-list__item" data-reveal>
+                  <span class="fleet-list__code">VF-01</span>
+                  <span class="fleet-list__name">Tractor-trailer</span>
+                  <span class="fleet-list__use">Long-haul linehaul</span>
+                </li>
+                <li class="fleet-list__item" data-reveal>
+                  <span class="fleet-list__code">VF-02</span>
+                  <span class="fleet-list__name">Rigid box truck</span>
+                  <span class="fleet-list__use">Regional and city runs</span>
+                </li>
+                <li class="fleet-list__item" data-reveal>
+                  <span class="fleet-list__code">VF-03</span>
+                  <span class="fleet-list__name">Tractor unit</span>
+                  <span class="fleet-list__use">Trailer swaps and yard moves</span>
+                </li>
+              </ul>
+              <p data-reveal><a class="btn btn--ghost" href="/fleet/">Meet the fleet</a></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene scene--track" id="track" data-scene="track" aria-labelledby="track-title">
+          <div class="scene__stage">
+            <div class="scene__copy">
+              <p class="eyebrow eyebrow--lime" data-reveal>Chapter 06 · Tracking</p>
+              <h2 id="track-title" class="scene__title" data-reveal>Follow a shipment.</h2>
+              <p class="scene__lede" data-reveal>
+                A preview of the tracking page. Every shipment there is simulated in your browser. None of it is real.
+              </p>
+            </div>
+            <article class="track-card" aria-labelledby="track-card-title" data-reveal>
+              <header class="track-card__head">
+                <p class="track-card__badge">Simulation</p>
+                <h3 id="track-card-title" class="track-card__id">VF-DEMO-0001</h3>
+              </header>
+              <p class="track-card__route">
+                <span>Northgate Hub</span>
+                <span class="track-card__arrow" aria-hidden="true">→</span>
+                <span class="visually-hidden">to</span>
+                <span>Port Kestrel</span>
+              </p>
+              <div class="track-card__progress" role="img" aria-label="Simulated progress: 62 percent of the route">
+                <span class="track-card__bar" style="--value: 0.62"></span>
+              </div>
+              <ol class="track-card__events" role="list">
+                <li><span class="track-card__time">Day 1 · 05:40</span> Loaded at Northgate Hub</li>
+                <li><span class="track-card__time">Day 1 · 06:10</span> Departed Northgate Hub</li>
+                <li><span class="track-card__time">Day 1 · 09:25</span> In transit on the Kestrel lane</li>
+              </ol>
+              <p class="track-card__note">Demo data. No real shipment, vehicle or location.</p>
+              <a class="btn btn--primary" href="/tracking/?id=VF-DEMO-0001">
+                Try a demo ID <span class="btn__tag">Simulated</span>
+              </a>
+            </article>
+          </div>
+        </section>
+
+        <section class="scene scene--arrival" id="arrival" tabindex="-1" data-scene="arrival" aria-labelledby="arrival-title">
+          <div class="scene__stage">
+            <div class="scene__copy">
+              <p class="eyebrow eyebrow--lime" data-reveal>Chapter 07 · Arrival</p>
+              <h2 id="arrival-title" class="scene__title" data-reveal>Delivered. On to the next load.</h2>
+              <p class="scene__lede" data-reveal>
+                That is the whole run, from night yard to dock. Planning your own? The quote form is a demo and sends
+                nothing.
+              </p>
+              <div class="hero__actions" data-reveal>
+                <a class="btn btn--primary" href="/contact/">Request a quote <span class="btn__tag">Demo</span></a>
+                <a class="btn btn--ghost" href="/services/">Explore services</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
 
     <!-- @include footer.html -->
