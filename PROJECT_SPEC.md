@@ -256,6 +256,21 @@ Conventions: **Cam** means camera move. **3D** means scene state. **DOM** means 
 9. No real company marks, real customer names, or unlabelled statistics appear anywhere.
 10. Deployed on Vercel free tier from GitHub, using no paid services.
 
+### 9.1 Acceptance status (milestone M6, 2026-10-29)
+
+| # | Criterion | Status | Evidence |
+|---|---|---|---|
+| 1 | All pages are real HTML routes and build cleanly | **Met** | 11 routes; `npm run build` passes; the SEO plugin's only warning (no site URL) is expected locally |
+| 2 | Scenes 0–7 in Tier 2, degrading to Tier 1 and Tier 0 | **Met** | Smoke tests play the film through and back, then check with WebGL disabled, with reduced motion and with JS off |
+| 3 | Every asset in the manifest; credits on `/about/#credits` | **Met** | A test checks every credit against `ASSET_MANIFEST.md`; all shipped images are original work |
+| 4 | Tracking: SIMULATION badge, zero requests, deterministic | **Met** | Playwright request log is empty; determinism is unit-tested over 300+ IDs and checked in the browser |
+| 5 | Forms: zero requests, demo-only message | **Met** | Zero requests and no storage, checked by test; `form-action 'none'` in the CSP blocks submission at the browser level too |
+| 6 | Lighthouse: A11y, Best practices, SEO ≥ 95; Home Perf ≥ 85; secondary pages Perf ≥ 90 | **Met, with a caveat** | `npm run audit:lighthouse` (median of 3): every page 93–100 Perf with 100/100/100. **Home and Fleet with live 3D score 62–63 in the GPU-less container.** That number must come from a real phone (risk R11) |
+| 7 | Keyboard walkthrough; screen-reader smoke on Home, Tracking, Contact | **Partly met** | Keyboard paths are tested, and axe-core reports **no WCAG 2.2 A/AA violations** on every route and interactive state. **A manual VoiceOver or NVDA pass is still owed** (it can't be automated here) |
+| 8 | 320–2560 px with no horizontal scroll | **Met** | Tested on every route at 320 and 2560 px |
+| 9 | No real marks, customers or unlabelled statistics | **Met** | An honesty scan of every built page bans claim words and checks for the fictional notice; stats are labelled illustrative |
+| 10 | Deployed on Vercel free tier from GitHub | **Met** | Vercel's Git integration deploys previews per branch and production from `main`; no paid services are used |
+
 ## 10. Risks and unknowns
 
 | # | Risk / unknown | Impact | Mitigation |

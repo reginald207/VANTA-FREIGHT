@@ -9,12 +9,25 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { gzipSync } from 'node:zlib';
-import { chromium } from 'playwright';
+import { chromium, firefox, webkit } from 'playwright';
 import { preview } from 'vite';
 import { HUBS, LANES } from '../src/data/network.js';
 import { SERVICES } from '../src/data/services.js';
 
 const root = resolve(import.meta.dirname, '..');
+
+// Run against another engine with VF_BROWSER=firefox or VF_BROWSER=webkit.
+const ENGINE = process.env.VF_BROWSER ?? 'chromium';
+const engine = { chromium, firefox, webkit }[ENGINE];
+if (!engine) throw new Error(`Unknown VF_BROWSER "${ENGINE}" (use chromium, firefox or webkit)`);
+
+// A browser with WebGL switched off, or null where the engine has no switch.
+function launchWithoutWebGL() {
+  if (ENGINE === 'chromium') return chromium.launch({ args: ['--disable-3d-apis'] });
+  if (ENGINE === 'firefox') return firefox.launch({ firefoxUserPrefs: { 'webgl.disabled': true } });
+  return null;
+}
+const NO_WEBGL_SWITCH = `${ENGINE} has no setting to switch WebGL off`;
 const ROUTES = [
   '/',
   '/services/',
@@ -33,7 +46,7 @@ let base;
 before(async () => {
   server = await preview({ root, logLevel: 'error', preview: { port: 0 } });
   base = server.resolvedUrls.local[0].replace(/\/$/, '');
-  browser = await chromium.launch();
+  browser = await engine.launch();
 });
 
 after(async () => {
@@ -88,12 +101,14 @@ describe('every route', () => {
       await context.close();
     });
 
-    test(`${path} has no horizontal overflow at 320px`, async () => {
-      const { page, context } = await open(path, { context: { viewport: { width: 320, height: 640 } } });
-      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-      assert.ok(overflow <= 0, `page overflows by ${overflow}px`);
-      await context.close();
-    });
+    for (const width of [320, 2560]) {
+      test(`${path} has no horizontal overflow at ${width}px`, async () => {
+        const { page, context } = await open(path, { context: { viewport: { width, height: width === 320 ? 640 : 1440 } } });
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        assert.ok(overflow <= 0, `page overflows by ${overflow}px`);
+        await context.close();
+      });
+    }
   }
 
   for (const path of ROUTES) {
@@ -118,8 +133,9 @@ describe('every route', () => {
 });
 
 describe('home tiers', () => {
-  test('no WebGL2: the detector picks the poster (Tier 1)', async () => {
-    const noGpu = await chromium.launch({ args: ['--disable-3d-apis'] });
+  test('no WebGL2: the detector picks the poster (Tier 1)', async (t) => {
+    const noGpu = await launchWithoutWebGL();
+    if (!noGpu) return t.skip(NO_WEBGL_SWITCH);
     const { page, context, errors } = await open('/', { browserInstance: noGpu });
     await stageSettled(page, 'poster');
     assert.equal(await page.getAttribute('html', 'data-vf-tier'), '1');
@@ -233,8 +249,9 @@ describe('home tiers', () => {
     await context.close();
   });
 
-  test('WebGL disabled entirely still yields the poster, even when Tier 2 is forced', async () => {
-    const noGpu = await chromium.launch({ args: ['--disable-3d-apis'] });
+  test('WebGL disabled entirely still yields the poster, even when Tier 2 is forced', async (t) => {
+    const noGpu = await launchWithoutWebGL();
+    if (!noGpu) return t.skip(NO_WEBGL_SWITCH);
     const { page, context } = await open('/?tier=2', { browserInstance: noGpu });
     await stageSettled(page, 'poster');
     assert.match(await page.getAttribute('html', 'data-vf-tier-reason'), /stage-error/);
@@ -329,28 +346,38 @@ async function loadedScriptKb(path, browserInstance) {
 }
 
 describe('bundle budgets (gzipped JS actually loaded)', () => {
+  // Measured with WebGL off (no lazy 3D), or with ?tier=1 where WebGL can't
+  // be switched off.
   let noGpu;
+  let suffix = '';
   before(async () => {
-    noGpu = await chromium.launch({ args: ['--disable-3d-apis'] });
+    noGpu = await launchWithoutWebGL();
+    if (!noGpu) {
+      noGpu = browser;
+      suffix = '?tier=1';
+    }
   });
   after(async () => {
-    await noGpu?.close();
+    if (noGpu !== browser) await noGpu?.close();
   });
 
   test('home, without the 3D stage, stays under 60 KB', async () => {
-    const kb = await loadedScriptKb('/', noGpu);
+    const kb = await loadedScriptKb(`/${suffix}`, noGpu);
     assert.ok(kb <= 60, `home loads ${kb.toFixed(1)} KB`);
   });
 
   for (const path of ROUTES.filter((route) => route !== '/')) {
     test(`${path} stays under 40 KB`, async () => {
-      const kb = await loadedScriptKb(path, noGpu);
+      const kb = await loadedScriptKb(`${path}${suffix}`, noGpu);
       assert.ok(kb <= 40, `${path} loads ${kb.toFixed(1)} KB`);
     });
   }
 
   test('the home 3D stage adds at most 220 KB', async () => {
-    const [withStage, without] = await Promise.all([loadedScriptKb('/?tier=2', browser), loadedScriptKb('/', noGpu)]);
+    const [withStage, without] = await Promise.all([
+      loadedScriptKb('/?tier=2', browser),
+      loadedScriptKb(`/${suffix}`, noGpu),
+    ]);
     assert.ok(withStage - without <= 220, `3D adds ${(withStage - without).toFixed(1)} KB`);
   });
 });
@@ -403,8 +430,9 @@ describe('content and honesty', () => {
 });
 
 describe('fleet viewer', () => {
-  test('without WebGL the class buttons swap the poster', async () => {
-    const noGpu = await chromium.launch({ args: ['--disable-3d-apis'] });
+  test('without WebGL the class buttons swap the poster', async (t) => {
+    const noGpu = await launchWithoutWebGL();
+    if (!noGpu) return t.skip(NO_WEBGL_SWITCH);
     const { page, context, errors } = await open('/fleet/', { browserInstance: noGpu });
     await stageSettled(page, 'poster');
     await page.click('[data-variant="rigid"]');
@@ -599,5 +627,113 @@ describe('demo request form', () => {
     const text = await page.locator('main').innerText();
     assert.doesNotMatch(text, /@[a-z0-9-]+\.[a-z]{2,}|\+?\d[\d\s()-]{8,}\d/i);
     await context.close();
+  });
+});
+
+describe('accessibility audit (axe-core, WCAG 2.2 A and AA)', async () => {
+  const { default: AxeBuilder } = await import('@axe-core/playwright');
+  const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
+
+  const audit = async (page, label) => {
+    const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+    const summary = violations.map(
+      (v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(', ')}`,
+    );
+    assert.deepEqual(summary, [], `${label}:\n${summary.join('\n')}`);
+  };
+
+  // Audit what a reader sees: scroll through so reveals run, return to the
+  // top, and let entrance animations finish.
+  const settle = async (page) => {
+    await page.evaluate(async () => {
+      for (let y = 0; y <= document.documentElement.scrollHeight; y += window.innerHeight / 2) {
+        window.scrollTo(0, y);
+        await new Promise((resolve) => setTimeout(resolve, 80));
+      }
+      window.scrollTo(0, 0);
+    });
+    await page.waitForTimeout(1600);
+  };
+
+  for (const path of ROUTES) {
+    test(`${path} has no WCAG A/AA violations`, async () => {
+      // The home page is audited with its live film (forced: the container's
+      // software WebGL may fall back), and separately as the static version.
+      const { page, context } = await open(path === '/' ? '/?tier=2' : path);
+      if (path === '/') await stageSettled(page, 'live');
+      await settle(page);
+      await audit(page, path);
+      await context.close();
+    });
+  }
+
+  test('interactive states have no violations', async () => {
+    const { page, context } = await open('/tracking/?id=VF-DEMO-0001');
+    await audit(page, 'tracking result');
+    await page.fill('#shipment-id', 'bad');
+    await page.press('#shipment-id', 'Enter');
+    await audit(page, 'tracking error');
+    await page.goto(`${base}/contact/`, { waitUntil: 'networkidle' });
+    await page.click('.request__submit');
+    await audit(page, 'form errors');
+    await page.goto(`${base}/fleet/?tier=2`, { waitUntil: 'networkidle' });
+    await stageSettled(page, 'live');
+    await audit(page, 'fleet viewer live');
+    await page.goto(`${base}/?tier=1`, { waitUntil: 'networkidle' });
+    await settle(page);
+    await audit(page, 'home static');
+    await context.close();
+  });
+});
+
+describe('security headers', () => {
+  const vercel = JSON.parse(readFileSync(resolve(root, 'vercel.json'), 'utf8'));
+  const site = Object.fromEntries(
+    vercel.headers.find(({ source }) => source === '/(.*)').headers.map(({ key, value }) => [key, value]),
+  );
+  const csp = site['Content-Security-Policy'];
+  const dist = resolve(root, 'dist');
+  const pages = ROUTES.map((route) => resolve(dist, route === '/' ? 'index.html' : route.endsWith('/') ? `${route.slice(1)}index.html` : route.slice(1)));
+
+  test('the CSP is strict: no unsafe-inline, unsafe-eval or wildcards; forms cannot submit', () => {
+    assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|\*/);
+    assert.match(csp, /form-action 'none'/);
+    assert.match(csp, /frame-ancestors 'none'/);
+    assert.match(csp, /object-src 'none'/);
+  });
+
+  test("the CSP's script hash matches the inline script on every page", async () => {
+    const { createHash } = await import('node:crypto');
+    for (const file of pages) {
+      const html = readFileSync(file, 'utf8');
+      const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+      assert.ok(inline.length <= 1, `${file}: one inline script at most`);
+      for (const script of inline) {
+        const hash = `'sha256-${createHash('sha256').update(script).digest('base64')}'`;
+        assert.ok(csp.includes(hash), `${file}: inline script hash ${hash} is not in vercel.json`);
+      }
+      assert.doesNotMatch(html, /\sstyle="|<style[\s>]/, `${file} has inline styles`);
+    }
+  });
+
+  test('the preview serves the production headers', async () => {
+    const response = await fetch(`${base}/`);
+    for (const [key, value] of Object.entries(site)) assert.equal(response.headers.get(key), value, key);
+  });
+});
+
+describe('search and social metadata', () => {
+  test('every page has Open Graph basics; robots.txt exists; 404 stays out', () => {
+    const dist = resolve(root, 'dist');
+    for (const route of ROUTES) {
+      const file = route === '/' ? 'index.html' : route.endsWith('/') ? `${route.slice(1)}index.html` : route.slice(1);
+      const html = readFileSync(resolve(dist, file), 'utf8');
+      for (const property of ['og:title', 'og:description', 'og:site_name']) {
+        assert.match(html, new RegExp(`property="${property}" content="[^"]+"`), `${file} ${property}`);
+      }
+      assert.match(html, /name="twitter:card" content="summary_large_image"/);
+    }
+    assert.match(readFileSync(resolve(dist, 'robots.txt'), 'utf8'), /User-agent: \*/);
+    assert.match(readFileSync(resolve(dist, '404.html'), 'utf8'), /name="robots" content="noindex"/);
   });
 });

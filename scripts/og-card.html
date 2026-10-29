@@ -1,0 +1,39 @@
+<!doctype html>
+<!-- Template for the 1200x630 social card, screenshotted by `npm run posters`.
+     Served by the dev server only; it is not a page of the site. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script type="module" src="/src/pages/base.js"></script>
+    <style>
+      body { margin: 0; background: #090b0a; }
+      .card {
+        position: relative; width: 1200px; height: 630px; overflow: hidden;
+        display: grid; align-content: end; gap: 18px; padding: 64px 72px; box-sizing: border-box;
+        background: url('/posters/hero-desktop.webp') 72% 50% / cover no-repeat;
+        font-family: 'Archivo Variable', sans-serif; color: #e9ede8;
+      }
+      .card::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(to right, rgb(9 11 10 / 0.95) 0%, rgb(9 11 10 / 0.75) 45%, rgb(9 11 10 / 0) 75%);
+      }
+      .card > * { position: relative; margin: 0; }
+      .mark { display: flex; align-items: center; gap: 14px; font-stretch: 75%; font-weight: 800; letter-spacing: 0.18em; font-size: 26px; }
+      .mark svg { color: #c7ff4a; }
+      h1 { font-stretch: 68%; font-weight: 800; font-size: 92px; line-height: 0.92; text-transform: uppercase; max-width: 13ch; }
+      h1 span { display: block; }
+      h1 span { color: #c7ff4a; }
+      .note { font-family: 'JetBrains Mono Variable', monospace; font-size: 18px; letter-spacing: 0.12em; text-transform: uppercase; color: #89958d; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <p class="mark">
+        <svg viewBox="0 0 32 32" width="34" height="34"><path d="M4 6h6l6 13 6-13h6L19 27h-6z" fill="currentColor" /></svg>
+        VANTA FREIGHT
+      </p>
+      <h1>We move what <span>moves the world.</span></h1>
+      <p class="note">A fictional carrier · design and engineering showcase</p>
+    </div>
+  </body>
+</html>

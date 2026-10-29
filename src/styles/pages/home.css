@@ -483,6 +483,9 @@ main:focus {
 }
 
 .track-card__bar {
+  /* VF-DEMO-0001's progress in the simulator (a unit test keeps them equal).
+     Set here, not inline, so the CSP needs no 'unsafe-inline' for styles. */
+  --value: 0.62;
   display: block;
   height: 100%;
   background: var(--vf-lime);
