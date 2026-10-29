@@ -1,0 +1,7 @@
+{
+  "forward": "+z",
+  "length": 6.4,
+  "wheels": { "nodes": ["Wheels", "Wheels.001"], "axis": "y", "spin": 1 },
+  "materials": { "truck": "body", "glass": "glass", "window_trim": "trim", "wheels": "tyre" },
+  "strip": { "y": 1.0 }
+}
