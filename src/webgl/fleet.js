@@ -10,7 +10,7 @@ const LANES = [
 const RUN_IN = 80;
 
 // A soft rounded-rectangle shadow, drawn once on a canvas.
-function createShadowTexture() {
+export function createShadowTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
   canvas.height = 64;

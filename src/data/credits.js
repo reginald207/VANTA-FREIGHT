@@ -45,6 +45,13 @@ export const CREDITS = [
     licenseUrl: 'https://github.com/microsoft/playwright/blob/main/LICENSE',
   },
   {
+    name: 'Car Kit by Kenney',
+    manifest: 'kenney',
+    use: 'Parked yard traffic in the home film, recoloured to the brand palette',
+    license: 'Creative Commons Zero (CC0 1.0)',
+    licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+  },
+  {
     name: 'VF-01, VF-02 and VF-03 trucks',
     manifest: null,
     use: '3D vehicles, built in code for this project',

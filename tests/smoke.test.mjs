@@ -235,6 +235,25 @@ describe('home tiers', () => {
     await context.close();
   });
 
+  test('yard traffic loads after the film goes live, without errors', async () => {
+    const { page, context, errors } = await open('/?tier=2');
+    const models = new Set();
+    const warnings = [];
+    page.on('response', (response) => {
+      if (/\/models\/kenney\/[\w-]+\.glb$/.test(response.url()) && response.ok()) models.add(response.url());
+    });
+    page.on('console', (message) => {
+      if (message.type() === 'warning' && /yard traffic/.test(message.text())) warnings.push(message.text());
+    });
+    await stageSettled(page, 'live');
+    await page.waitForFunction(() => performance.getEntriesByType('resource').filter((e) => /models\/kenney/.test(e.name)).length >= 4, null, { timeout: 30_000 });
+    await page.waitForTimeout(500);
+    assert.equal(models.size, 4, 'four distinct vehicle models');
+    assert.deepEqual(warnings, []);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   test('losing the WebGL context swaps back to the poster', async () => {
     const { page, context, errors } = await open('/?tier=2');
     await stageSettled(page, 'live');

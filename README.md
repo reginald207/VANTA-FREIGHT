@@ -13,7 +13,7 @@ A cinematic, multipage website for a **fictional** freight company: a design and
 All six milestones are merged and live:
 
 - **M1–M4:** the full home film, Services and the four service pages, Fleet (with a 3D viewer), About (with credits), a **simulated** shipment tracker and a **demo** quote and contact form. Neither the tracker nor the form makes a network request.
-- **M5:** the glTF model pipeline is built and tested, but **no licensed model is switched on**. None could be verified first-hand from the build environment, so the trucks stay procedural. See "Using a licensed 3D model" below.
+- **M5:** the glTF model pipeline is built and tested. The hero and fleet trucks stay procedural, because the only licensed kit available, Kenney's Car Kit (CC0, verified), has no tractor-trailer. Instead, four of its vehicles, recoloured to the brand palette, park in the night yard as background traffic. See "Using a licensed 3D model" below.
 - **M6:** hardening, including a strict Content Security Policy, SEO and social metadata, axe-core and Lighthouse audits.
 
 Acceptance status: `PROJECT_SPEC.md` §9.1.
@@ -73,6 +73,8 @@ node scripts/optimize-model.mjs input.glb public/models/truck.glb
 ```
 
 The script strips textures and animations, optimises the geometry, and fails over budget (1.5 MB, 50k triangles). Then follow the steps in `src/webgl/truck/hero-truck.js`. Only use a model whose licence is approved in `ASSET_MANIFEST.md`. On the dev server, `?truck=fixture` previews the test fixture in the live film.
+
+The yard traffic comes from Kenney's Car Kit. To regenerate it from the kit's zip, see `assets-src/kenney-car-kit/README.md`.
 
 ## Audits
 

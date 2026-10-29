@@ -9,6 +9,7 @@ import { createFloor, createHeadlightBeams, createLights } from './environment.j
 import { createFleet } from './fleet.js';
 import { createNetwork } from './network.js';
 import { createStage } from './stage.js';
+import { createYardTraffic } from './yard-traffic.js';
 import { heroTruckSource } from './truck/hero-truck.js';
 import { createTruck } from './truck/truck-source.js';
 
@@ -74,6 +75,9 @@ export async function createHomeScene({
     driftScale: 1, // 0 freezes idle drift (poster capture)
   };
   let ranges = evenRanges();
+  // Yard traffic (optional backdrop), added once it has loaded.
+  let yard = null;
+  let disposed = false;
   let state = deriveState(0, ranges);
   let stageOpacity = '';
 
@@ -104,6 +108,8 @@ export async function createHomeScene({
     network.setState(state.networkVisible, state.networkDraw);
     cargo.setProgress(state.crates, state.xray);
     fleet.setProgress(state.fleet);
+    // Parked traffic would clutter the top-down network map.
+    yard?.setVisible(state.map < 0.5);
 
     Object.assign(rig.state, {
       progress: film.progress,
@@ -132,6 +138,18 @@ export async function createHomeScene({
   await stage.compile();
   checkpoint();
   stage.render();
+
+  // Yard traffic is an optional backdrop: it loads after the film is live, so
+  // it can never delay the stage past its deadline, and the film simply runs
+  // without it if the models fail to load.
+  createYardTraffic()
+    .then(async (traffic) => {
+      if (disposed) return;
+      stage.scene.add(traffic.group);
+      await stage.compile();
+      yard = traffic;
+    })
+    .catch((error) => console.warn('[vf] yard traffic unavailable:', error));
   onProgress(0.95);
 
   return {
@@ -154,6 +172,7 @@ export async function createHomeScene({
       return canvas.toDataURL(type, quality);
     },
     dispose() {
+      disposed = true;
       network.dispose();
       stage.dispose();
     },

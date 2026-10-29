@@ -90,3 +90,58 @@ describe('production hero', () => {
     assert.match(source, /export const HERO_TRUCK = \{ type: 'procedural' \};/);
   });
 });
+
+describe('Kenney yard traffic (CC0)', async () => {
+  const { NodeIO } = await import('@gltf-transform/core');
+  const { brandColor, VEHICLES } = await import('../scripts/prepare-kenney.mjs');
+  const { PARKED } = await import('../src/webgl/yard-traffic.js');
+  const { countTriangles } = await import('../scripts/optimize-model.mjs');
+  const file = (name) => new URL(`../public/models/kenney/${name}.glb`, import.meta.url);
+  const hex = (rgb) => `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+  const toSrgb = (c) => Math.round(255 * (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055));
+
+  test('the palette maps onto brand tones: lamps lime, windows glass, paint carbon', () => {
+    assert.equal(hex(brandColor([0xff, 0xc7, 0x1d])), '#c7ff4a');
+    assert.equal(hex(brandColor([0xd3, 0xec, 0xff])), '#0b1210');
+    for (const paint of [[0x28, 0x92, 0x6f], [0xe5, 0x5f, 0x48], [0x5f, 0x74, 0xca]]) {
+      const [r, g, b] = brandColor(paint);
+      assert.ok(Math.max(r, g, b) - Math.min(r, g, b) < 20, `${hex(paint)} became a neutral carbon`);
+    }
+  });
+
+  for (const name of VEHICLES) {
+    test(`${name}.glb is textureless, vertex-coloured in brand tones and within budget`, async () => {
+      const document = await new NodeIO().read(file(name).pathname);
+      const root = document.getRoot();
+      assert.equal(root.listTextures().length, 0);
+      assert.ok(countTriangles(document) < 5000);
+      for (const mesh of root.listMeshes()) {
+        for (const primitive of mesh.listPrimitives()) {
+          const colors = primitive.getAttribute('COLOR_0');
+          assert.ok(colors, `${name}: every primitive has vertex colours`);
+          assert.equal(primitive.getAttribute('TEXCOORD_0'), null);
+          const rgb = [];
+          for (let i = 0; i < colors.getCount(); i += 1) {
+            const srgb = colors.getElement(i, rgb).map(toSrgb);
+            const spread = Math.max(...srgb) - Math.min(...srgb);
+            assert.ok(hex(srgb) === '#c7ff4a' || spread < 24, `${name}: off-brand colour ${hex(srgb)}`);
+          }
+        }
+      }
+    });
+  }
+
+  test('every parked vehicle loads, and every spot is clear of the fleet lanes and cargo', async () => {
+    for (const { model, length, x, z } of PARKED) {
+      const bytes = readFileSync(file(model));
+      const truck = await loadGltfTruck({
+        data: bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+        mapping: { forward: '+z', length, materials: { '*': 'keep' } },
+      });
+      assert.ok(Math.abs(truck.footprint.maxX - truck.footprint.minX - length) < 0.2, `${model} is ${length} m`);
+      // Fleet lanes reach z ≈ -16.5; cargo clusters stay within |z| < 6.
+      assert.ok(z <= -19, `${model} at z=${z} clears the fleet lanes`);
+      assert.ok(Math.abs(x) < 40, `${model} at x=${x} stays inside the yard`);
+    }
+  });
+});

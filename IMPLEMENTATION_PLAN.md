@@ -164,7 +164,11 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
   - `src/webgl/truck/hero-truck.js` is the single switch, with step-by-step instructions. On the dev server, `?truck=fixture` A/Bs the fixture in the live film.
   - The fixture (Cesium Milk Truck, CC BY 4.0) is committed without its logo texture and credited in `tests/fixtures/README.md`. A test checks it never reaches `dist/`.
 - **Found and fixed:** three.js sanitises node names on load (`Wheels.001` becomes `Wheels001`), so mappings written from the file's own names silently missed wheels. The matcher now sanitises the same way.
-- **To finish M5:** pick a model, then either allow its host in the environment's network settings or download it yourself and commit it with its licence text. Then run the optimiser, write its mapping, and switch `HERO_TRUCK`. The camera keyframes are tuned for a 17 m semi, so a model of different proportions needs its framing re-checked.
+- **Kenney Car Kit (2026-10-29):** kenney.nl refuses automated downloads (HTTP 403), so the owner committed the zip on the `models` branch. Its `License.txt` was verified (CC0). The kit has no tractor-trailer, so by the owner's choice **the hero stays procedural** and four vehicles (delivery, delivery-flat, truck-flat, van) became **parked yard traffic** behind the fleet lanes:
+  - `scripts/prepare-kenney.mjs` bakes the palette texture into brand-coloured vertex colours, so no texture ships and the CSP needs no `blob:` exception. Each file is 78–95 KB, about 360 KB in total.
+  - `src/webgl/yard-traffic.js` loads them **after the film is live**, so they can't delay the 3-second stage deadline. It hides them over the top-down network map, and the film runs without them if they fail to load.
+  - Provenance and modifications are in `assets-src/kenney-car-kit/`, with a courtesy credit on `/about/#credits`.
+- **To use a different hero model later:** commit it with its licence text, run the optimiser, write its mapping, and switch `HERO_TRUCK`. The camera keyframes are tuned for a 17 m semi.
 - If a GLB truck is approved in `ASSET_MANIFEST.md`: optimise with gltf-transform (`dedup`, `prune`, `weld`, `draco` or `meshopt`, `resize --width 2048`, `webp`), map wheel and light nodes, apply the brand material override, and A/B it against the procedural truck.
 - **Acceptance:** model ≤ 1.5 MB; no fps regression; credits rendered.
 
