@@ -90,3 +90,25 @@ describe('production hero', () => {
     assert.match(source, /export const HERO_TRUCK = \{ type: 'procedural' \};/);
   });
 });
+
+describe('fleet liveries', async () => {
+  const { LIVERIES } = await import('../src/webgl/truck/procedural-truck.js');
+  const luminance = (hex) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+
+  test('each class has its own cab paint', () => {
+    const colors = ['semi', 'rigid', 'tractor'].map((variant) => LIVERIES[variant].body.color);
+    assert.equal(new Set(colors).size, 3);
+  });
+
+  test('side lettering contrasts with the box paint it sits on', () => {
+    for (const [variant, livery] of Object.entries(LIVERIES)) {
+      if (!livery.text) continue;
+      const box = luminance(livery.trailer.color);
+      const text = luminance(livery.text.name);
+      assert.ok(Math.abs(text - box) > 0.5, `${variant}: lettering reads on its box`);
+    }
+  });
+});

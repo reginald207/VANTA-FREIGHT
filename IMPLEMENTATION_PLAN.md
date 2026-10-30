@@ -166,6 +166,8 @@ Scenes 3–7, all secondary pages beyond stubs, tracking, forms, GLB models, and
 - **Found and fixed:** three.js sanitises node names on load (`Wheels.001` becomes `Wheels001`), so mappings written from the file's own names silently missed wheels. The matcher now sanitises the same way.
 - **To finish M5:** pick a model, then either allow its host in the environment's network settings or download it yourself and commit it with its licence text. Then run the optimiser, write its mapping, and switch `HERO_TRUCK`. The camera keyframes are tuned for a 17 m semi, so a model of different proportions needs its framing re-checked.
 - If a GLB truck is approved in `ASSET_MANIFEST.md`: optimise with gltf-transform (`dedup`, `prune`, `weld`, `draco` or `meshopt`, `resize --width 2048`, `webp`), map wheel and light nodes, apply the brand material override, and A/B it against the procedural truck.
+- **Kenney Car Kit (2026-10-29/30):** the owner supplied the zip and its `License.txt` was verified (CC0). The kit has no tractor-trailer, so it was tried only as background yard traffic. On review, the owner chose to drop it, so nothing from the kit ships.
+- **Fleet liveries (2026-10-30):** instead, each procedural class gets its own brand-palette paint (`LIVERIES` in `procedural-truck.js`): VF-01 has a lime cab over a carbon trailer, VF-02 is ice white with carbon lettering, and VF-03 is brushed steel. The posters and social card were re-rendered with `npm run posters`.
 - **Acceptance:** model ≤ 1.5 MB; no fps regression; credits rendered.
 
 ## Phase 7 — M6: Hardening and deployment

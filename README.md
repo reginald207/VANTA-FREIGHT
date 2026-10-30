@@ -13,7 +13,7 @@ A cinematic, multipage website for a **fictional** freight company: a design and
 All six milestones are merged and live:
 
 - **M1–M4:** the full home film, Services and the four service pages, Fleet (with a 3D viewer), About (with credits), a **simulated** shipment tracker and a **demo** quote and contact form. Neither the tracker nor the form makes a network request.
-- **M5:** the glTF model pipeline is built and tested, but **no licensed model is switched on**. None could be verified first-hand from the build environment, so the trucks stay procedural. See "Using a licensed 3D model" below.
+- **M5:** the glTF model pipeline is built and tested, but **no licensed model is switched on**. The trucks stay procedural and original, each in its own brand livery: VF-01 has a lime cab and a carbon trailer, VF-02 is ice white with lime light lines, and VF-03 is brushed steel. See "Using a licensed 3D model" below.
 - **M6:** hardening, including a strict Content Security Policy, SEO and social metadata, axe-core and Lighthouse audits.
 
 Acceptance status: `PROJECT_SPEC.md` §9.1.
