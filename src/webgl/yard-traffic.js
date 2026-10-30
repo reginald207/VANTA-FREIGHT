@@ -6,15 +6,17 @@ import { Group } from 'three';
 import { createContactShadow, createShadowTexture } from './fleet.js';
 import { createTruck } from './truck/truck-source.js';
 
-// Real-world lengths (m) and parking spots (x, z, heading in radians). The
-// row sits just behind the fleet's tractor lane (z ≈ -15, edges to -16.5) and
-// clear of the cargo clusters, so it reads as a backdrop through the fog.
+// Real-world lengths (m) and parking spots (x, z, heading in radians), picked
+// from what the film's cameras actually see past the hero truck: a row parked
+// between the two fleet lanes (z -7.6 and -15.2), one across the road, and a
+// deeper rear row for depth. All clear the road (|z| < 4), the cargo clusters
+// and the camera paths, and none sits close enough to upstage the fleet.
 export const PARKED = [
+  { model: 'van', length: 5.1, x: -8, z: -11.4, heading: 0 },
+  { model: 'delivery', length: 7.2, x: -24, z: -11.4, heading: 0 },
+  { model: 'truck-flat', length: 6.2, x: -2, z: -21, heading: 0.35 },
+  { model: 'delivery-flat', length: 7.2, x: 5, z: 14, heading: 0.3 },
   { model: 'delivery', length: 7.2, x: 8, z: -20, heading: 0.5 },
-  { model: 'truck-flat', length: 6.2, x: -2, z: -21.5, heading: 0.35 },
-  { model: 'van', length: 5.1, x: -10, z: -19.5, heading: -0.25 },
-  { model: 'delivery-flat', length: 7.2, x: -19, z: -22, heading: 0.15 },
-  { model: 'delivery', length: 7.2, x: -29, z: -20, heading: -0.4 },
   { model: 'van', length: 5.1, x: 17, z: -23, heading: 0.9 },
 ];
 

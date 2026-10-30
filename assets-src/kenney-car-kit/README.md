@@ -12,7 +12,7 @@
 
 Made by `scripts/prepare-kenney.mjs`:
 
-- **Recoloured:** the shared palette texture was baked into per-vertex colours remapped onto the VANTA FREIGHT palette. Paint and white panels became carbon, metal became steel grey, tyres and chassis trim black, windows dark glass, and amber lamps lime.
+- **Recoloured:** the shared palette texture was baked into per-vertex colours remapped onto the VANTA FREIGHT palette. Blue-grey bodies and white panels became light steel to ice, coloured paint and lamps lime livery, tyres and chassis trim black, and windows dark glass. The bodies are light on purpose, so the vehicles read through the night fog behind the carbon hero truck.
 - **Texture removed:** this avoids a `blob:` exception in the Content Security Policy.
 - **Optimised:** deduplicated, welded and pruned (`scripts/optimize-model.mjs`). Each file is 78–95 KB with 1.4k–1.7k triangles.
 

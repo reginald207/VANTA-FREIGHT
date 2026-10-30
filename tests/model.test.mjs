@@ -100,12 +100,16 @@ describe('Kenney yard traffic (CC0)', async () => {
   const hex = (rgb) => `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
   const toSrgb = (c) => Math.round(255 * (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055));
 
-  test('the palette maps onto brand tones: lamps lime, windows glass, paint carbon', () => {
-    assert.equal(hex(brandColor([0xff, 0xc7, 0x1d])), '#c7ff4a');
+  test('the palette maps onto brand tones: paint and lamps lime, windows glass, bodies light steel', () => {
     assert.equal(hex(brandColor([0xd3, 0xec, 0xff])), '#0b1210');
-    for (const paint of [[0x28, 0x92, 0x6f], [0xe5, 0x5f, 0x48], [0x5f, 0x74, 0xca]]) {
-      const [r, g, b] = brandColor(paint);
-      assert.ok(Math.max(r, g, b) - Math.min(r, g, b) < 20, `${hex(paint)} became a neutral carbon`);
+    for (const accent of [[0xff, 0xc7, 0x1d], [0x28, 0x92, 0x6f], [0xe5, 0x5f, 0x48], [0x5f, 0x74, 0xca]]) {
+      assert.equal(hex(brandColor(accent)), '#c7ff4a', `${hex(accent)} became lime livery`);
+    }
+    // Pale lilac panels and blue-grey bodies: neutral, and light enough to read in the fog.
+    for (const body of [[0xb5, 0xbd, 0xe3], [0x88, 0x8e, 0xaa], [0xda, 0xda, 0xe8]]) {
+      const [r, g, b] = brandColor(body);
+      assert.ok(Math.max(r, g, b) - Math.min(r, g, b) < 24, `${hex(body)} became a neutral`);
+      assert.ok(g > 0x90, `${hex(body)} stays light`);
     }
   });
 
@@ -139,8 +143,13 @@ describe('Kenney yard traffic (CC0)', async () => {
         mapping: { forward: '+z', length, materials: { '*': 'keep' } },
       });
       assert.ok(Math.abs(truck.footprint.maxX - truck.footprint.minX - length) < 0.2, `${model} is ${length} m`);
-      // Fleet lanes reach z ≈ -16.5; cargo clusters stay within |z| < 6.
-      assert.ok(z <= -19, `${model} at z=${z} clears the fleet lanes`);
+      // Clear of the road, the fleet lanes (z -7.6 and -15.2, trucks ±1.3 m,
+      // running in from far -x to a nose at x ≈ 3.5) and the cargo clusters.
+      assert.ok(Math.abs(z) >= 4, `${model} at z=${z} clears the road`);
+      if (x < 6) {
+        for (const lane of [-7.6, -15.2]) assert.ok(Math.abs(z - lane) >= 3.5, `${model} at z=${z} clears the lane at ${lane}`);
+      }
+      assert.ok(!(x > -29 && x < -15 && Math.abs(z) < 7), `${model} at (${x}, ${z}) clears the cargo clusters`);
       assert.ok(Math.abs(x) < 40, `${model} at x=${x} stays inside the yard`);
     }
   });

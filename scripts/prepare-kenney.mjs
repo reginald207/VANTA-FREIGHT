@@ -19,13 +19,14 @@ import { optimizeModel } from './optimize-model.mjs';
 export const VEHICLES = ['delivery', 'delivery-flat', 'truck-flat', 'van'];
 
 const hex = (value) => [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16));
+// Light bodies on purpose: the yard sits 20-40 m out in a dark, foggy night,
+// so steel-to-ice panels and lime livery are what keep it readable behind the
+// carbon hero truck.
 const BRAND = {
   trimDark: hex('#0a0c0b'),
   trimLight: hex('#1d211f'),
-  steelDark: hex('#2c332f'),
-  steelLight: hex('#89958d'),
-  bodyDark: hex('#151916'),
-  bodyLight: hex('#3a433d'),
+  steelDark: hex('#5b6660'),
+  steelLight: hex('#e9ede8'),
   glass: hex('#0b1210'),
   lime: hex('#c7ff4a'),
 };
@@ -51,13 +52,12 @@ function hsl([r, g, b]) {
  * keeping its relative lightness so the model's shading survives.
  */
 export function brandColor(rgb) {
-  const { h, s, l } = hsl(rgb);
-  if (s > 0.6 && h >= 38 && h <= 66 && l > 0.5) return BRAND.lime; // amber lamps
+  const { h, l } = hsl(rgb);
   if (l > 0.82 && h >= 185 && h <= 220 && rgb[2] > rgb[0] + 12) return BRAND.glass; // windows
+  // Chroma rather than HSL saturation, which runs high for Kenney's pale lilac panels.
+  if (Math.max(...rgb) - Math.min(...rgb) > 75) return BRAND.lime; // lamps and paint accents become lime livery
   if (l < 0.3) return mix(BRAND.trimDark, BRAND.trimLight, l / 0.3); // tyres, chassis
-  if (s > 0.35) return mix(BRAND.bodyDark, BRAND.bodyLight, l); // paint
-  if (l > 0.75) return mix(BRAND.bodyDark, BRAND.bodyLight, 0.5 + (l - 0.75)); // white panels
-  return mix(BRAND.steelDark, BRAND.steelLight, (l - 0.3) / 0.45); // blue-grey metal
+  return mix(BRAND.steelDark, BRAND.steelLight, (l - 0.3) / 0.6); // blue-grey bodies, white panels
 }
 
 const toLinear = (value) => {
@@ -91,7 +91,7 @@ export async function bakeBrandColors(input, output) {
         document.createAccessor().setType(Accessor.Type.VEC3).setArray(colors).setBuffer(uv.getBuffer()),
       );
       primitive.setAttribute('TEXCOORD_0', null);
-      primitive.getMaterial()?.setBaseColorTexture(null).setBaseColorFactor([1, 1, 1, 1]).setMetallicFactor(0.35).setRoughnessFactor(0.55);
+      primitive.getMaterial()?.setBaseColorTexture(null).setBaseColorFactor([1, 1, 1, 1]).setMetallicFactor(0.1).setRoughnessFactor(0.6);
     }
   }
   root.listMaterials().forEach((material) => material.setName('kenney-brand'));
