@@ -84,6 +84,22 @@ async function scrollToScene(page, scene, t) {
 const stageOpacity = (page) =>
   page.evaluate(() => Number(getComputedStyle(document.querySelector('canvas.vf-stage')).opacity));
 
+// Waits (up to a timeout) for the stage opacity to cross a threshold, so slow
+// machines that render fewer frames per second don't fail on a fixed sleep.
+async function settledOpacity(page, { above = -Infinity, below = Infinity }) {
+  await page
+    .waitForFunction(
+      ([min, max]) => {
+        const value = Number(getComputedStyle(document.querySelector('canvas.vf-stage')).opacity);
+        return value > min && value < max;
+      },
+      [above, below],
+      { timeout: 10_000 },
+    )
+    .catch(() => {});
+  return stageOpacity(page);
+}
+
 const stageSettled = (page, value) =>
   page.waitForFunction((expected) => document.documentElement.dataset.vfStage === expected, value, {
     timeout: 30_000,
@@ -183,18 +199,19 @@ describe('home tiers', () => {
     assert.equal(await page.locator('.cargo-item.is-active').count(), 1);
 
     await scrollToScene(page, 'track', 0.5);
-    assert.ok((await stageOpacity(page)) < 0.5, 'stage dims behind the tracking preview');
+    assert.ok((await settledOpacity(page, { below: 0.5 })) < 0.5, 'stage dims behind the tracking preview');
 
     await scrollToScene(page, 'arrival', 0.4);
-    assert.ok((await stageOpacity(page)) > 0.9, 'stage returns for the arrival');
+    const arrival = await settledOpacity(page, { above: 0.9 });
+    assert.ok(arrival > 0.9, `stage returns for the arrival (${arrival})`);
 
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await page.waitForTimeout(1800);
-    assert.ok((await stageOpacity(page)) < 0.05, 'stage fades out before the footer');
+    assert.ok((await settledOpacity(page, { below: 0.05 })) < 0.05, 'stage fades out before the footer');
 
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(1800);
-    assert.ok((await stageOpacity(page)) > 0.95, 'stage is back for the hero');
+    assert.ok((await settledOpacity(page, { above: 0.95 })) > 0.95, 'stage is back for the hero');
     assert.equal(await page.locator('.network-labels').evaluate((el) => el.style.opacity), '0');
     assert.deepEqual(errors, []);
     await context.close();
@@ -290,9 +307,12 @@ describe('keyboard and navigation', () => {
     await page.keyboard.press('Tab');
     const skip = page.locator('.skip-link').first();
     assert.ok(await skip.evaluate((el) => el === document.activeElement));
-    await page.waitForTimeout(250);
+    // It slides in on focus; wait for it rather than a fixed time.
+    await page
+      .waitForFunction((el) => el.getBoundingClientRect().top >= 0, await skip.elementHandle(), { timeout: 5_000 })
+      .catch(() => {});
     const top = await skip.evaluate((el) => el.getBoundingClientRect().top);
-    assert.ok(top >= 0, 'skip link is on screen when focused');
+    assert.ok(top >= 0, `skip link is on screen when focused (top ${top})`);
     await page.keyboard.press('Enter');
     assert.equal(await page.evaluate(() => document.activeElement?.id), 'main');
     await context.close();

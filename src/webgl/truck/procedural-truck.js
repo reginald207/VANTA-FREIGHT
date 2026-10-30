@@ -66,6 +66,38 @@ const VARIANTS = {
   },
 };
 
+// Per-class paint, all from the brand palette: VF-01 a lime cab over a carbon
+// trailer, VF-02 ice white with lime light lines, VF-03 brushed steel. `text`
+// colours the side lettering so it reads on the box paint.
+export const LIVERIES = {
+  semi: {
+    body: { color: '#a6e22e', metalness: 0.15, roughness: 0.3 },
+    trailer: { color: '#151916' },
+    rib: { color: '#1d231f' },
+    text: { name: '#e9ede8', tagline: '#c7ff4a' },
+  },
+  rigid: {
+    body: { color: '#dfe4de', metalness: 0.1, roughness: 0.32 },
+    trailer: { color: '#e2e6e1', metalness: 0.1, roughness: 0.45 },
+    rib: { color: '#c3cbc5', metalness: 0.3, roughness: 0.4 },
+    text: { name: '#151916', tagline: '#3d4741' },
+  },
+  tractor: {
+    body: { color: '#89958d', metalness: 0.85, roughness: 0.28 },
+    trailer: {},
+    rib: {},
+    text: null,
+  },
+};
+
+function applyLivery(materials, livery) {
+  for (const key of ['body', 'trailer', 'rib']) {
+    const { color, ...rest } = livery[key];
+    if (color) materials[key].color.set(color);
+    Object.assign(materials[key], rest);
+  }
+}
+
 function nonIndexed(geometry) {
   return geometry.index ? geometry.toNonIndexed() : geometry;
 }
@@ -355,14 +387,16 @@ function createWheels(materials, axles) {
   return { meshes, setDistance };
 }
 
-let liveryTexture = null;
+// One lettering texture per text colour pair, shared by every truck using it.
+const liveryTextures = new Map();
 
-function getLiveryTexture() {
-  liveryTexture ??= createLiveryTexture();
-  return liveryTexture;
+function getLiveryTexture(text) {
+  const key = `${text.name}/${text.tagline}`;
+  if (!liveryTextures.has(key)) liveryTextures.set(key, createLiveryTexture(text));
+  return liveryTextures.get(key);
 }
 
-async function createLiveryTexture() {
+async function createLiveryTexture(text) {
   try {
     await Promise.all([
       document.fonts.load("800 160px 'Archivo Variable'"),
@@ -377,7 +411,7 @@ async function createLiveryTexture() {
   canvas.height = 400;
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#e9ede8';
+  ctx.fillStyle = text.name;
   ctx.textBaseline = 'alphabetic';
   if ('fontStretch' in ctx) ctx.fontStretch = 'condensed';
   if ('letterSpacing' in ctx) ctx.letterSpacing = '10px';
@@ -392,7 +426,7 @@ async function createLiveryTexture() {
 
   if ('letterSpacing' in ctx) ctx.letterSpacing = '6px';
   if ('fontStretch' in ctx) ctx.fontStretch = 'normal';
-  ctx.fillStyle = '#c7ff4a';
+  ctx.fillStyle = text.tagline;
   ctx.font = "500 46px 'JetBrains Mono Variable', ui-monospace, monospace";
   ctx.fillText('WE MOVE WHAT MOVES THE WORLD.', 48, 345);
 
@@ -426,6 +460,7 @@ export async function createProceduralTruck({ variant = 'semi' } = {}) {
   const spec = VARIANTS[variant];
   if (!spec) throw new Error(`Unknown truck variant: ${variant}`);
   const materials = createBrandMaterials();
+  applyLivery(materials, LIVERIES[variant]);
   const parts = Object.fromEntries(Object.keys(materials).map((key) => [key, []]));
 
   buildTractor(parts, spec.tractor);
@@ -446,7 +481,7 @@ export async function createProceduralTruck({ variant = 'semi' } = {}) {
 
   let livery = null;
   if (spec.livery) {
-    livery = createLivery(await getLiveryTexture(), spec.livery);
+    livery = createLivery(await getLiveryTexture(LIVERIES[variant].text), spec.livery);
     livery.meshes.forEach((mesh) => group.add(mesh));
   }
 
